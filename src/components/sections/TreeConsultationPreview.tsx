@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import Image from 'next/image'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
@@ -164,10 +165,11 @@ export function TreeConsultationPreview({
               className="relative aspect-[4/5] rounded-sm overflow-hidden shadow-cinematic-lg"
               style={{ y: imageY }}
             >
-              <img
+              <Image
                 src={imageSrc}
                 alt="Custom olive tree installation"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
 
               {/* Overlay gradient */}

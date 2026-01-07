@@ -5,9 +5,10 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Service {
-  id: string
+  id: string | number
   title: string
   description: string
   image: any
@@ -76,10 +77,11 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
         <section ref={heroRef.ref} className="relative min-h-[60vh] bg-night-green overflow-hidden">
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-r from-night-green via-night-green/95 to-night-green/70 z-10" />
-            <img
+            <Image
               src={heroImageUrl}
               alt="Interior plantscaping"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
           <div className="absolute inset-0 pattern-overlay z-20 opacity-20" />
@@ -124,10 +126,11 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
                   <Link href={service.link}>
                     <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-6">
                       {service.image?.url && (
-                        <img
+                        <Image
                           src={service.image.url}
                           alt={service.image.alt || service.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-night-green/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

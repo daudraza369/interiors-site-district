@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
+import Image from 'next/image'
 import { useState, useRef } from 'react'
 
 interface Project {
@@ -151,10 +152,11 @@ export function ProjectCard({
             />
           ) : (
             imageUrl && (
-              <img
+              <Image
                 src={imageUrl}
                 alt={project.title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             )
           )}

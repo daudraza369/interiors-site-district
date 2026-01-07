@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 
 interface Project {
@@ -114,10 +115,11 @@ export function PortfolioSection({
                 >
                   <div className="aspect-[9/16]">
                     {imageUrl ? (
-                      <img 
+                      <Image 
                         src={imageUrl} 
                         alt={imageAlt}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-night-green/20" />

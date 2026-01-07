@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Eye, MapPin } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 
@@ -151,10 +152,11 @@ const ShowroomCard = ({ showroom, index, onOpenTour }: ShowroomCardProps) => {
         aria-label={`Open virtual tour of ${showroom.title}`}
       >
         {thumbnailUrl && (
-          <img
+          <Image
             src={thumbnailUrl}
             alt={`${showroom.title} preview`}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         )}
 

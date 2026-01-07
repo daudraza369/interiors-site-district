@@ -58,11 +58,17 @@ async function getServicesPageData() {
 export default async function ServicesPage() {
   const { servicesPage, services } = await getServicesPageData()
 
+  // Transform services to convert id from number to string
+  const transformedServices = services.map((service: any) => ({
+    ...service,
+    id: String(service.id),
+  }))
+
   return (
     <div className="min-h-screen bg-ivory" suppressHydrationWarning>
       <Header />
       <main suppressHydrationWarning>
-        <ServicesPageClient servicesPage={servicesPage} services={services} />
+        <ServicesPageClient servicesPage={servicesPage} services={transformedServices} />
       </main>
       <Footer />
     </div>
