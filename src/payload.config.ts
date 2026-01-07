@@ -3,6 +3,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users'
@@ -27,6 +28,15 @@ import { StylingPage } from './globals/StylingPage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+// Ensure database directory exists in production
+const dbPath = process.env.DATABASE_URL?.replace('file:', '')
+if (dbPath && process.env.NODE_ENV === 'production') {
+  const dir = path.dirname(dbPath)
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
+  }
+}
 
 export default buildConfig({
   admin: {
