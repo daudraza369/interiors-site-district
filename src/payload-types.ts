@@ -69,6 +69,11 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    testimonials: Testimonial;
+    projects: Project;
+    'virtual-showrooms': VirtualShowroom;
+    services: Service;
+    'collection-items': CollectionItem;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,17 +83,48 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    'virtual-showrooms': VirtualShowroomsSelect<false> | VirtualShowroomsSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
+    'collection-items': CollectionItemsSelect<false> | CollectionItemsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    header: Header;
+    footer: Footer;
+    'home-page': HomePage;
+    'projects-page': ProjectsPage;
+    'contact-page': ContactPage;
+    'services-page': ServicesPage;
+    'tree-solutions-page': TreeSolutionsPage;
+    'about-page': AboutPage;
+    'collection-page': CollectionPage;
+    'flowers-page': FlowersPage;
+    'hospitality-page': HospitalityPage;
+    'styling-page': StylingPage;
+  };
+  globalsSelect: {
+    header: HeaderSelect<false> | HeaderSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    'home-page': HomePageSelect<false> | HomePageSelect<true>;
+    'projects-page': ProjectsPageSelect<false> | ProjectsPageSelect<true>;
+    'contact-page': ContactPageSelect<false> | ContactPageSelect<true>;
+    'services-page': ServicesPageSelect<false> | ServicesPageSelect<true>;
+    'tree-solutions-page': TreeSolutionsPageSelect<false> | TreeSolutionsPageSelect<true>;
+    'about-page': AboutPageSelect<false> | AboutPageSelect<true>;
+    'collection-page': CollectionPageSelect<false> | CollectionPageSelect<true>;
+    'flowers-page': FlowersPageSelect<false> | FlowersPageSelect<true>;
+    'hospitality-page': HospitalityPageSelect<false> | HospitalityPageSelect<true>;
+    'styling-page': StylingPageSelect<false> | StylingPageSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -121,7 +157,7 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -145,8 +181,15 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
+  /**
+   * Alternative text for accessibility and SEO
+   */
   alt: string;
+  /**
+   * Optional caption for the image
+   */
+  caption?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -161,10 +204,208 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials".
+ */
+export interface Testimonial {
+  id: number;
+  /**
+   * The testimonial quote text
+   */
+  quote: string;
+  /**
+   * Name of the person giving the testimonial
+   */
+  clientName: string;
+  /**
+   * Job title or role of the client
+   */
+  role?: string | null;
+  /**
+   * Company name (optional)
+   */
+  company?: string | null;
+  /**
+   * Optional image of the testimonial author
+   */
+  authorImage?: (number | null) | Media;
+  /**
+   * Order in which testimonials appear (lower numbers first)
+   */
+  displayOrder?: number | null;
+  /**
+   * Only published testimonials will appear on the frontend
+   */
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage projects displayed in the projects gallery
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  /**
+   * Main title of the project
+   */
+  title: string;
+  /**
+   * Category for filtering projects
+   */
+  projectType: 'Office' | 'Hospitality' | 'F&B' | 'Villa';
+  /**
+   * Project location (e.g., "Riyadh, KSA")
+   */
+  location?: string | null;
+  /**
+   * Project description shown on hover
+   */
+  description?: string | null;
+  /**
+   * Main image displayed in the project card
+   */
+  heroImage: number | Media;
+  /**
+   * Optional video URL (if provided, video will play on hover and can be opened in modal)
+   */
+  videoUrl?: string | null;
+  /**
+   * Additional images for project gallery (optional)
+   */
+  galleryImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Order in which projects appear (lower numbers first)
+   */
+  displayOrder?: number | null;
+  /**
+   * Only published projects are displayed on the frontend
+   */
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage virtual tour showrooms for 360° experiences
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "virtual-showrooms".
+ */
+export interface VirtualShowroom {
+  id: number;
+  /**
+   * Name of the showroom/project
+   */
+  title: string;
+  /**
+   * Brief description of the showroom
+   */
+  description?: string | null;
+  /**
+   * Full URL to the virtual tour (e.g., iStaging LiveTour URL)
+   */
+  tourUrl: string;
+  /**
+   * Location of the showroom (e.g., "Riyadh", "Jeddah")
+   */
+  location?: string | null;
+  /**
+   * Preview image for the virtual tour card (optional)
+   */
+  thumbnail?: (number | null) | Media;
+  /**
+   * Order in which showrooms appear (lower numbers first)
+   */
+  displayOrder?: number | null;
+  /**
+   * Only published showrooms are displayed on the frontend
+   */
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage service offerings displayed on the services page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: number;
+  /**
+   * Name of the service (e.g., "Office & F&B Plantscaping")
+   */
+  title: string;
+  /**
+   * Brief description of the service
+   */
+  description: string;
+  /**
+   * Image displayed on the service card
+   */
+  image: number | Media;
+  /**
+   * URL path to the service detail page (e.g., "/services/plantscaping")
+   */
+  link: string;
+  /**
+   * Order in which services appear (lower numbers first)
+   */
+  displayOrder?: number | null;
+  /**
+   * Only published services are displayed on the frontend
+   */
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage products and items displayed on the Collection page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collection-items".
+ */
+export interface CollectionItem {
+  id: number;
+  /**
+   * Product/item name (e.g., "Premium Olive Tree")
+   */
+  name: string;
+  /**
+   * Category for filtering on the Collection page
+   */
+  category: 'Trees' | 'Flowers' | 'Leaves/Foliage' | 'Green Walls' | 'Trunks & Branches' | 'Planters';
+  /**
+   * Main product image displayed in the collection grid
+   */
+  image: number | Media;
+  /**
+   * e.g., "Price on Request", "From SAR 850", "SAR 1,200"
+   */
+  price: string;
+  /**
+   * Lower numbers appear first in the collection grid
+   */
+  displayOrder?: number | null;
+  /**
+   * Only published items are displayed on the frontend
+   */
+  isPublished?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -181,20 +422,40 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'testimonials';
+        value: number | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'virtual-showrooms';
+        value: number | VirtualShowroom;
+      } | null)
+    | ({
+        relationTo: 'services';
+        value: number | Service;
+      } | null)
+    | ({
+        relationTo: 'collection-items';
+        value: number | CollectionItem;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -204,10 +465,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -227,7 +488,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -261,6 +522,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -272,6 +534,86 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonials_select".
+ */
+export interface TestimonialsSelect<T extends boolean = true> {
+  quote?: T;
+  clientName?: T;
+  role?: T;
+  company?: T;
+  authorImage?: T;
+  displayOrder?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  projectType?: T;
+  location?: T;
+  description?: T;
+  heroImage?: T;
+  videoUrl?: T;
+  galleryImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  displayOrder?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "virtual-showrooms_select".
+ */
+export interface VirtualShowroomsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  tourUrl?: T;
+  location?: T;
+  thumbnail?: T;
+  displayOrder?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  image?: T;
+  link?: T;
+  displayOrder?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collection-items_select".
+ */
+export interface CollectionItemsSelect<T extends boolean = true> {
+  name?: T;
+  category?: T;
+  image?: T;
+  price?: T;
+  displayOrder?: T;
+  isPublished?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -312,6 +654,1715 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Manage site header navigation, logos, and CTA button
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header".
+ */
+export interface Header {
+  id: number;
+  navigation: {
+    label: string;
+    /**
+     * e.g., /, /services, /collection
+     */
+    href: string;
+    hasDropdown?: boolean | null;
+    dropdownItems?:
+      | {
+          label: string;
+          href: string;
+          id?: string | null;
+        }[]
+      | null;
+    id?: string | null;
+  }[];
+  logos: {
+    brandmark: number | Media;
+    brandmarkNightGreen: number | Media;
+    brandmarkPear: number | Media;
+    logoLockup?: (number | null) | Media;
+    logoLockupNightGreen?: (number | null) | Media;
+  };
+  ctaButton: {
+    text: string;
+    link: string;
+  };
+  /**
+   * Pages that use transparent header (dark hero sections)
+   */
+  heroPages?:
+    | {
+        /**
+         * e.g., /, /flowers, /projects
+         */
+        path: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage site footer content, contact information, and links
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  logo: number | Media;
+  description: string;
+  contactInfo: {
+    email: string;
+    phone: string;
+    whatsapp: string;
+    address: string;
+    googleMapsLink: string;
+  };
+  socialLinks: {
+    label: string;
+    /**
+     * e.g., IG, TT, SC
+     */
+    abbr: string;
+    url: string;
+    id?: string | null;
+  }[];
+  quickLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  serviceLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  legalLinks?: {
+    privacyPolicy?: string | null;
+    termsOfService?: string | null;
+  };
+  /**
+   * Use {year} as placeholder for current year
+   */
+  copyright: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage all sections of the home page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number;
+  heroSection?: {
+    /**
+     * Add multiple slides for the hero carousel
+     */
+    slides?:
+      | {
+          /**
+           * Upload hero background image
+           */
+          image: number | Media;
+          /**
+           * Main headline text
+           */
+          title: string;
+          /**
+           * Small text above title (optional)
+           */
+          eyebrow?: string | null;
+          /**
+           * Subtitle text (optional)
+           */
+          subtitle?: string | null;
+          /**
+           * Main description text
+           */
+          description?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Manage client logos and section settings
+   */
+  clientLogosSection?: {
+    enabled?: boolean | null;
+    headline?: string | null;
+    /**
+     * Limit number of logos shown in the marquee
+     */
+    maxLogos?: number | null;
+    /**
+     * Add client logos to display in the marquee
+     */
+    logos?:
+      | {
+          clientName: string;
+          logo: number | Media;
+          /**
+           * Optional - link to client website
+           */
+          websiteUrl?: string | null;
+          /**
+           * Lower numbers appear first
+           */
+          displayOrder?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  problemFramingSection: {
+    enabled?: boolean | null;
+    /**
+     * Text shown in the badge above headline
+     */
+    badgeText?: string | null;
+    /**
+     * Main headline for the problem framing section
+     */
+    headline?: string | null;
+    /**
+     * Subheadline/description text below headline
+     */
+    description?: string | null;
+    /**
+     * Add problem cards with stats and research findings
+     */
+    problems: {
+      icon: 'Brain' | 'TrendingDown' | 'Flame' | 'CalendarX' | 'AlertTriangle';
+      headline: string;
+      /**
+       * e.g., "61%", "15%", "37%"
+       */
+      stat: string;
+      /**
+       * e.g., "Lower Cognitive Scores"
+       */
+      label: string;
+      description: string;
+      /**
+       * Research source citation
+       */
+      source: string;
+      id?: string | null;
+    }[];
+  };
+  sectionDivider?: {
+    enabled?: boolean | null;
+    /**
+     * Text displayed in the divider transition
+     */
+    transitionText?: string | null;
+  };
+  expertQuotesCarousel?: {
+    enabled?: boolean | null;
+    /**
+     * Add expert quotes with author information
+     */
+    quotes?:
+      | {
+          quote: string;
+          author: string;
+          /**
+           * e.g., CEO, Director, etc.
+           */
+          authorTitle?: string | null;
+          /**
+           * Optional author photo
+           */
+          authorImage?: (number | null) | Media;
+          /**
+           * Category badge for the quote (e.g., Scientific, Visionary)
+           */
+          type?: ('Scientific' | 'Visionary' | 'Modern Business') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  ourApproachSection?: {
+    enabled?: boolean | null;
+    /**
+     * Text shown in the badge above headline (e.g., "The Solution")
+     */
+    badgeText?: string | null;
+    /**
+     * Main headline for the approach section
+     */
+    headline?: string | null;
+    /**
+     * Supporting subheadline text
+     */
+    subheadline?: string | null;
+    /**
+     * Detailed description text below subheadline
+     */
+    description?: string | null;
+    /**
+     * Add key approach points/methods
+     */
+    approachPoints?:
+      | {
+          /**
+           * Step number (e.g., "01", "02")
+           */
+          number?: string | null;
+          title: string;
+          /**
+           * Detailed description of this approach point
+           */
+          description: string;
+          /**
+           * Icon to display for this step
+           */
+          icon?: ('Lightbulb' | 'Ruler' | 'Wrench' | 'Sparkles') | null;
+          /**
+           * Accent text displayed next to icon (e.g., "Understand", "Envision")
+           */
+          accent?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Add supporting images for this section
+     */
+    images?:
+      | {
+          image?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Text for the call-to-action button
+     */
+    ctaText?: string | null;
+    /**
+     * Link for the call-to-action button
+     */
+    ctaLink?: string | null;
+  };
+  whyChooseUsSection?: {
+    enabled?: boolean | null;
+    /**
+     * Main headline for the benefits section
+     */
+    headline?: string | null;
+    /**
+     * Add key benefits or advantages
+     */
+    benefits?:
+      | {
+          title: string;
+          /**
+           * Detailed description of this benefit
+           */
+          description?: string | null;
+          /**
+           * Select an icon for this benefit
+           */
+          icon: 'Leaf' | 'Palette' | 'Recycle' | 'Award' | 'Building2';
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Manage statistics displayed on the home page
+   */
+  statsSection?: {
+    enabled?: boolean | null;
+    /**
+     * Optional headline for the stats section
+     */
+    headline?: string | null;
+    /**
+     * Add statistics to display
+     */
+    stats?:
+      | {
+          /**
+           * Stat label (e.g., "Projects Completed")
+           */
+          label: string;
+          /**
+           * The statistic number (e.g., "500+", "98%", "12+")
+           */
+          number: string;
+          /**
+           * Lower numbers appear first
+           */
+          displayOrder?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Manage portfolio projects displayed on the home page
+   */
+  portfolioSection?: {
+    enabled?: boolean | null;
+    /**
+     * Main headline (first line) - "In Action" is hardcoded as second line
+     */
+    headline?: string | null;
+    /**
+     * Supporting subheadline text
+     */
+    subheadline?: string | null;
+    /**
+     * Add portfolio projects to display
+     */
+    projects?:
+      | {
+          title: string;
+          projectType: 'Offices' | 'F&B' | 'Private Villa' | 'Hospitality' | 'Retail' | 'Other';
+          description: string;
+          heroImage: number | Media;
+          /**
+           * Lower numbers appear first
+           */
+          displayOrder?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    ctaText?: string | null;
+    ctaLink?: string | null;
+  };
+  differentiationSection?: {
+    enabled?: boolean | null;
+    /**
+     * First line of the headline
+     */
+    headline?: string | null;
+    /**
+     * Second line of the headline (with shimmer effect)
+     */
+    headlineSecond?: string | null;
+    /**
+     * Supporting description text below the headline
+     */
+    subheadline?: string | null;
+    /**
+     * Add comparison points showing District vs Others
+     */
+    comparisonPoints?:
+      | {
+          /**
+           * The comparison criteria (e.g., "Design Approach")
+           */
+          label: string;
+          /**
+           * What District offers
+           */
+          us: string;
+          /**
+           * What others typically offer
+           */
+          them: string;
+          /**
+           * Lower numbers appear first
+           */
+          displayOrder?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Call-to-action text at the bottom
+     */
+    ctaText?: string | null;
+    /**
+     * Link for the CTA
+     */
+    ctaLink?: string | null;
+  };
+  treeConsultationPreview?: {
+    enabled?: boolean | null;
+    /**
+     * Text shown in the badge above headline
+     */
+    badgeText?: string | null;
+    /**
+     * First line of the headline
+     */
+    headline?: string | null;
+    /**
+     * Second line of the headline (with shimmer effect)
+     */
+    headlineSecond?: string | null;
+    /**
+     * Description text (use double line break to separate paragraphs)
+     */
+    description?: string | null;
+    ctaText?: string | null;
+    ctaLink?: string | null;
+    secondaryCtaText?: string | null;
+    secondaryCtaLink?: string | null;
+    /**
+     * Main image for this section
+     */
+    backgroundImage?: (number | null) | Media;
+    /**
+     * Number displayed in the stat card
+     */
+    statNumber?: string | null;
+    /**
+     * Label text for the stat card
+     */
+    statLabel?: string | null;
+  };
+  /**
+   * Uses Testimonials collection - configure display settings
+   */
+  testimonialsSection?: {
+    enabled?: boolean | null;
+    /**
+     * Main headline for the testimonials section
+     */
+    headline?: string | null;
+    /**
+     * Supporting subheadline text
+     */
+    subheadline?: string | null;
+    /**
+     * Limit number of testimonials shown
+     */
+    maxTestimonials?: number | null;
+  };
+  contactSection?: {
+    enabled?: boolean | null;
+    /**
+     * Text shown in the badge above headline
+     */
+    badgeText?: string | null;
+    /**
+     * First line of the headline
+     */
+    headline?: string | null;
+    /**
+     * Second line of the headline (with shimmer effect)
+     */
+    headlineSecond?: string | null;
+    /**
+     * Supporting subheadline text
+     */
+    subheadline?: string | null;
+    ctaText?: string | null;
+    contactInfo?: {
+      email?: string | null;
+      phone?: string | null;
+      whatsapp?: string | null;
+      address?: string | null;
+      googleMaps?: string | null;
+    };
+    /**
+     * Social media links
+     */
+    socialLinks?:
+      | {
+          label: string;
+          href: string;
+          /**
+           * Short abbreviation (e.g., IG, TT, SC)
+           */
+          abbr: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Available project types for the dropdown
+     */
+    projectTypes?:
+      | {
+          type: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Manage settings for the virtual showroom section on the home page
+   */
+  virtualShowroomSection: {
+    enabled?: boolean | null;
+    /**
+     * Small text above headline (e.g., "360° Experience")
+     */
+    badgeText?: string | null;
+    /**
+     * Main headline text
+     */
+    headline: string;
+    /**
+     * Supporting description text below headline
+     */
+    description?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage all sections of the projects page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects-page".
+ */
+export interface ProjectsPage {
+  id: number;
+  /**
+   * Hero section at the top of the projects page
+   */
+  heroSection: {
+    enabled?: boolean | null;
+    /**
+     * Small text above headline (e.g., "Portfolio")
+     */
+    badgeText?: string | null;
+    /**
+     * Main headline text
+     */
+    headline: string;
+    /**
+     * Supporting description text below headline
+     */
+    description?: string | null;
+  };
+  /**
+   * Filterable projects gallery with category filters
+   */
+  gallerySection?: {
+    enabled?: boolean | null;
+    /**
+     * Optional headline for the gallery section (leave empty to hide)
+     */
+    headline?: string | null;
+    /**
+     * Category filter options (e.g., All, Office, Hospitality, F&B, Villa)
+     */
+    categories?:
+      | {
+          /**
+           * Display name (e.g., "Office", "Hospitality")
+           */
+          label: string;
+          /**
+           * Internal value used for filtering (should match project_type in Projects collection)
+           */
+          value: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * 360° virtual tour showrooms section
+   */
+  virtualShowroomSection?: {
+    enabled?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage all sections of the contact page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-page".
+ */
+export interface ContactPage {
+  id: number;
+  /**
+   * Hero section at the top of the contact page
+   */
+  heroSection: {
+    enabled?: boolean | null;
+    /**
+     * Main headline text
+     */
+    headline: string;
+    /**
+     * Supporting description text below headline
+     */
+    description?: string | null;
+  };
+  /**
+   * Contact form and contact information
+   */
+  contactSection?: {
+    enabled?: boolean | null;
+    /**
+     * Headline for the contact info section
+     */
+    headline?: string | null;
+    /**
+     * Description text for the contact info section
+     */
+    description?: string | null;
+    contactInfo?: {
+      email?: string | null;
+      phone?: string | null;
+      whatsapp?: string | null;
+      address?: string | null;
+      googleMaps?: string | null;
+    };
+    /**
+     * Social media links to display
+     */
+    socialLinks?:
+      | {
+          /**
+           * Display label (e.g., "Instagram")
+           */
+          label: string;
+          /**
+           * Social media URL
+           */
+          href: string;
+          /**
+           * Short abbreviation for display (e.g., "IG", "TT", "SC")
+           */
+          abbr: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Project type options for the form dropdown
+     */
+    projectTypes?:
+      | {
+          label: string;
+          /**
+           * Internal value (slug)
+           */
+          value: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Text for the submit button
+     */
+    formButtonText?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage all sections of the services page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services-page".
+ */
+export interface ServicesPage {
+  id: number;
+  /**
+   * Hero section at the top of the services page
+   */
+  heroSection: {
+    enabled?: boolean | null;
+    /**
+     * Main headline text
+     */
+    headline: string;
+    /**
+     * Supporting description text below headline
+     */
+    description?: string | null;
+    /**
+     * Background image for the hero section
+     */
+    backgroundImage?: (number | null) | Media;
+  };
+  /**
+   * Services grid section
+   */
+  servicesSection?: {
+    enabled?: boolean | null;
+    /**
+     * Optional headline for the services section
+     */
+    headline?: string | null;
+  };
+  /**
+   * Call-to-action section at the bottom
+   */
+  ctaSection?: {
+    enabled?: boolean | null;
+    /**
+     * Main headline text
+     */
+    headline?: string | null;
+    /**
+     * Supporting description text
+     */
+    description?: string | null;
+    ctaText?: string | null;
+    ctaLink?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tree-solutions-page".
+ */
+export interface TreeSolutionsPage {
+  id: number;
+  heroSection: {
+    headline: string;
+    description?: string | null;
+    subDescription?: string | null;
+    backgroundImage?: (number | null) | Media;
+    ctaText?: string | null;
+  };
+  processSection?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    headline?: string | null;
+    steps?:
+      | {
+          step: number;
+          title: string;
+          description: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  materialsSection?: {
+    enabled?: boolean | null;
+    headline?: string | null;
+    description?: string | null;
+    subDescription?: string | null;
+    image?: (number | null) | Media;
+    features?:
+      | {
+          /**
+           * Icon name from lucide-react (e.g., Sun, Shield, Eye, TreeDeciduous)
+           */
+          icon?: string | null;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  maintenanceSection?: {
+    enabled?: boolean | null;
+    headline?: string | null;
+    description?: string | null;
+    subDescription?: string | null;
+    image?: (number | null) | Media;
+    ctaText?: string | null;
+  };
+  consultationSection?: {
+    enabled?: boolean | null;
+    headline?: string | null;
+    description?: string | null;
+    subDescription?: string | null;
+    ctaText?: string | null;
+    projectTypeOptions?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    treeTypeOptions?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    timelineOptions?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page".
+ */
+export interface AboutPage {
+  id: number;
+  heroSection: {
+    headline: string;
+    description?: string | null;
+    backgroundImage?: (number | null) | Media;
+  };
+  storySection?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    headline?: string | null;
+    paragraph1?: string | null;
+    paragraph2?: string | null;
+    paragraph3?: string | null;
+    image?: (number | null) | Media;
+  };
+  valuesSection?: {
+    enabled?: boolean | null;
+    headline?: string | null;
+    description?: string | null;
+    values?:
+      | {
+          title: string;
+          description: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  teamSection?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    headline?: string | null;
+    paragraph1?: string | null;
+    paragraph2?: string | null;
+    image?: (number | null) | Media;
+    ctaText?: string | null;
+    ctaLink?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage all sections of the collection page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collection-page".
+ */
+export interface CollectionPage {
+  id: number;
+  /**
+   * Hero section at the top of the collection page
+   */
+  heroSection: {
+    enabled?: boolean | null;
+    /**
+     * Small text above the headline
+     */
+    eyebrow?: string | null;
+    /**
+     * Main headline text
+     */
+    headline: string;
+    /**
+     * Supporting description text below headline
+     */
+    description?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage all sections of the flowers page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flowers-page".
+ */
+export interface FlowersPage {
+  id: number;
+  /**
+   * Hero section at the top of the flowers page
+   */
+  heroSection: {
+    enabled?: boolean | null;
+    /**
+     * Main headline (use \n for line breaks)
+     */
+    headline: string;
+    /**
+     * Supporting description text
+     */
+    subheadline?: string | null;
+    badges?:
+      | {
+          /**
+           * Icon name from lucide-react (e.g., Plane, CalendarClock, Building2)
+           */
+          icon: string;
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Catalog download section with preview and download button
+   */
+  catalogSection: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    headline: string;
+    /**
+     * Preview image for the catalog
+     */
+    previewImage?: (number | null) | Media;
+    /**
+     * Direct download URL for the catalog PDF
+     */
+    catalogUrl: string;
+    buttonText?: string | null;
+  };
+  /**
+   * Benefits section with 3 feature cards
+   */
+  benefitsSection: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    headline: string;
+    benefits?:
+      | {
+          /**
+           * Icon name from lucide-react (e.g., Truck, Award, Flower2)
+           */
+          icon: string;
+          title: string;
+          description: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage content for the Hospitality page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hospitality-page".
+ */
+export interface HospitalityPage {
+  id: number;
+  comingSoonSection?: {
+    enabled?: boolean | null;
+    badgeText?: string | null;
+    headline?: string | null;
+    description?: string | null;
+    primaryCtaText?: string | null;
+    primaryCtaLink?: string | null;
+    secondaryCtaText?: string | null;
+    secondaryCtaLink?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Manage content for the Styling page
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "styling-page".
+ */
+export interface StylingPage {
+  id: number;
+  comingSoonSection?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    headline?: string | null;
+    description?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header_select".
+ */
+export interface HeaderSelect<T extends boolean = true> {
+  navigation?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        hasDropdown?: T;
+        dropdownItems?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  logos?:
+    | T
+    | {
+        brandmark?: T;
+        brandmarkNightGreen?: T;
+        brandmarkPear?: T;
+        logoLockup?: T;
+        logoLockupNightGreen?: T;
+      };
+  ctaButton?:
+    | T
+    | {
+        text?: T;
+        link?: T;
+      };
+  heroPages?:
+    | T
+    | {
+        path?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  logo?: T;
+  description?: T;
+  contactInfo?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        whatsapp?: T;
+        address?: T;
+        googleMapsLink?: T;
+      };
+  socialLinks?:
+    | T
+    | {
+        label?: T;
+        abbr?: T;
+        url?: T;
+        id?: T;
+      };
+  quickLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  serviceLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  legalLinks?:
+    | T
+    | {
+        privacyPolicy?: T;
+        termsOfService?: T;
+      };
+  copyright?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        slides?:
+          | T
+          | {
+              image?: T;
+              title?: T;
+              eyebrow?: T;
+              subtitle?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  clientLogosSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        maxLogos?: T;
+        logos?:
+          | T
+          | {
+              clientName?: T;
+              logo?: T;
+              websiteUrl?: T;
+              displayOrder?: T;
+              id?: T;
+            };
+      };
+  problemFramingSection?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        description?: T;
+        problems?:
+          | T
+          | {
+              icon?: T;
+              headline?: T;
+              stat?: T;
+              label?: T;
+              description?: T;
+              source?: T;
+              id?: T;
+            };
+      };
+  sectionDivider?:
+    | T
+    | {
+        enabled?: T;
+        transitionText?: T;
+      };
+  expertQuotesCarousel?:
+    | T
+    | {
+        enabled?: T;
+        quotes?:
+          | T
+          | {
+              quote?: T;
+              author?: T;
+              authorTitle?: T;
+              authorImage?: T;
+              type?: T;
+              id?: T;
+            };
+      };
+  ourApproachSection?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        subheadline?: T;
+        description?: T;
+        approachPoints?:
+          | T
+          | {
+              number?: T;
+              title?: T;
+              description?: T;
+              icon?: T;
+              accent?: T;
+              id?: T;
+            };
+        images?:
+          | T
+          | {
+              image?: T;
+              id?: T;
+            };
+        ctaText?: T;
+        ctaLink?: T;
+      };
+  whyChooseUsSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        benefits?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              icon?: T;
+              id?: T;
+            };
+      };
+  statsSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        stats?:
+          | T
+          | {
+              label?: T;
+              number?: T;
+              displayOrder?: T;
+              id?: T;
+            };
+      };
+  portfolioSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        subheadline?: T;
+        projects?:
+          | T
+          | {
+              title?: T;
+              projectType?: T;
+              description?: T;
+              heroImage?: T;
+              displayOrder?: T;
+              id?: T;
+            };
+        ctaText?: T;
+        ctaLink?: T;
+      };
+  differentiationSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        headlineSecond?: T;
+        subheadline?: T;
+        comparisonPoints?:
+          | T
+          | {
+              label?: T;
+              us?: T;
+              them?: T;
+              displayOrder?: T;
+              id?: T;
+            };
+        ctaText?: T;
+        ctaLink?: T;
+      };
+  treeConsultationPreview?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        headlineSecond?: T;
+        description?: T;
+        ctaText?: T;
+        ctaLink?: T;
+        secondaryCtaText?: T;
+        secondaryCtaLink?: T;
+        backgroundImage?: T;
+        statNumber?: T;
+        statLabel?: T;
+      };
+  testimonialsSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        subheadline?: T;
+        maxTestimonials?: T;
+      };
+  contactSection?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        headlineSecond?: T;
+        subheadline?: T;
+        ctaText?: T;
+        contactInfo?:
+          | T
+          | {
+              email?: T;
+              phone?: T;
+              whatsapp?: T;
+              address?: T;
+              googleMaps?: T;
+            };
+        socialLinks?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              abbr?: T;
+              id?: T;
+            };
+        projectTypes?:
+          | T
+          | {
+              type?: T;
+              id?: T;
+            };
+      };
+  virtualShowroomSection?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects-page_select".
+ */
+export interface ProjectsPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        description?: T;
+      };
+  gallerySection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        categories?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              id?: T;
+            };
+      };
+  virtualShowroomSection?:
+    | T
+    | {
+        enabled?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-page_select".
+ */
+export interface ContactPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+      };
+  contactSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        contactInfo?:
+          | T
+          | {
+              email?: T;
+              phone?: T;
+              whatsapp?: T;
+              address?: T;
+              googleMaps?: T;
+            };
+        socialLinks?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              abbr?: T;
+              id?: T;
+            };
+        projectTypes?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              id?: T;
+            };
+        formButtonText?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services-page_select".
+ */
+export interface ServicesPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        backgroundImage?: T;
+      };
+  servicesSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+      };
+  ctaSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        ctaText?: T;
+        ctaLink?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tree-solutions-page_select".
+ */
+export interface TreeSolutionsPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        headline?: T;
+        description?: T;
+        subDescription?: T;
+        backgroundImage?: T;
+        ctaText?: T;
+      };
+  processSection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        steps?:
+          | T
+          | {
+              step?: T;
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  materialsSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        subDescription?: T;
+        image?: T;
+        features?:
+          | T
+          | {
+              icon?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  maintenanceSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        subDescription?: T;
+        image?: T;
+        ctaText?: T;
+      };
+  consultationSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        subDescription?: T;
+        ctaText?: T;
+        projectTypeOptions?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+        treeTypeOptions?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+        timelineOptions?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-page_select".
+ */
+export interface AboutPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        headline?: T;
+        description?: T;
+        backgroundImage?: T;
+      };
+  storySection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        paragraph1?: T;
+        paragraph2?: T;
+        paragraph3?: T;
+        image?: T;
+      };
+  valuesSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        description?: T;
+        values?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  teamSection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        paragraph1?: T;
+        paragraph2?: T;
+        image?: T;
+        ctaText?: T;
+        ctaLink?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collection-page_select".
+ */
+export interface CollectionPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flowers-page_select".
+ */
+export interface FlowersPageSelect<T extends boolean = true> {
+  heroSection?:
+    | T
+    | {
+        enabled?: T;
+        headline?: T;
+        subheadline?: T;
+        badges?:
+          | T
+          | {
+              icon?: T;
+              text?: T;
+              id?: T;
+            };
+      };
+  catalogSection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        previewImage?: T;
+        catalogUrl?: T;
+        buttonText?: T;
+      };
+  benefitsSection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        benefits?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hospitality-page_select".
+ */
+export interface HospitalityPageSelect<T extends boolean = true> {
+  comingSoonSection?:
+    | T
+    | {
+        enabled?: T;
+        badgeText?: T;
+        headline?: T;
+        description?: T;
+        primaryCtaText?: T;
+        primaryCtaLink?: T;
+        secondaryCtaText?: T;
+        secondaryCtaLink?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "styling-page_select".
+ */
+export interface StylingPageSelect<T extends boolean = true> {
+  comingSoonSection?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        headline?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

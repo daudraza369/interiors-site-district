@@ -42,6 +42,13 @@ next-env.d.ts
 
 /media
 
+# Database files
+*.db
+*.db-journal
+*.db.backup-*
+*.sqlite
+*.sqlite3
+
 # Playwright
 node_modules/
 /test-results/

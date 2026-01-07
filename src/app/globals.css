@@ -1,0 +1,357 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* District Interiors Brand Fonts */
+@font-face {
+  font-family: 'Kalice';
+  src: url('/fonts/Kalice-Regular.woff2') format('woff2'),
+       url('/fonts/Kalice-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Santana';
+  src: url('/fonts/Santana.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Santana';
+  src: url('/fonts/Santana-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Fragment';
+  src: url('/fonts/PPFragment-TextBold.woff2') format('woff2'),
+       url('/fonts/PPFragment-TextBold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontrealArabic-Regular.woff2') format('woff2'),
+       url('/fonts/PPNeueMontrealArabic-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontrealArabic-SemiBold.woff2') format('woff2'),
+       url('/fonts/PPNeueMontrealArabic-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'PP Neue Montreal', 'Santana', 'Inter', 'Helvetica Neue', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  :root {
+    /* District Interiors Brand Colors */
+    --night-green: 155 22% 16%;
+    --slate-moss: 155 10% 32%;
+    --stone: 60 3% 78%;
+    --ivory: 60 30% 98%;
+    
+    /* Pastel Accents */
+    --pear: 72 46% 83%;
+    --lavender: 270 33% 66%;
+    --mauve: 280 33% 79%;
+    --blush: 20 18% 88%;
+    
+    /* Extended palette for cinematic effects */
+    --deep-forest: 155 28% 10%;
+    --moss-glow: 72 50% 75%;
+    --gold-accent: 45 80% 60%;
+    
+    /* Semantic Tokens */
+    --background: var(--ivory);
+    --foreground: var(--night-green);
+    
+    --card: var(--ivory);
+    --card-foreground: var(--night-green);
+    
+    --popover: var(--ivory);
+    --popover-foreground: var(--night-green);
+    
+    --primary: var(--night-green);
+    --primary-foreground: var(--ivory);
+    
+    --secondary: var(--stone);
+    --secondary-foreground: var(--night-green);
+    
+    --muted: var(--stone);
+    --muted-foreground: var(--slate-moss);
+    
+    --accent: var(--pear);
+    --accent-foreground: var(--night-green);
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--ivory);
+    
+    --border: var(--stone);
+    --input: var(--stone);
+    --ring: var(--night-green);
+    
+    --radius: 0.25rem;
+    
+    /* Sidebar */
+    --sidebar-background: var(--ivory);
+    --sidebar-foreground: var(--night-green);
+    --sidebar-primary: var(--night-green);
+    --sidebar-primary-foreground: var(--ivory);
+    --sidebar-accent: var(--pear);
+    --sidebar-accent-foreground: var(--night-green);
+    --sidebar-border: var(--stone);
+    --sidebar-ring: var(--night-green);
+  }
+
+  .dark {
+    --background: var(--night-green);
+    --foreground: var(--ivory);
+    --card: var(--night-green);
+    --card-foreground: var(--ivory);
+    --popover: var(--night-green);
+    --popover-foreground: var(--ivory);
+    --primary: var(--ivory);
+    --primary-foreground: var(--night-green);
+    --secondary: var(--slate-moss);
+    --secondary-foreground: var(--ivory);
+    --muted: var(--slate-moss);
+    --muted-foreground: var(--stone);
+    --accent: var(--pear);
+    --accent-foreground: var(--night-green);
+    --border: var(--slate-moss);
+    --input: var(--slate-moss);
+    --ring: var(--ivory);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Custom Scrollbar - WebKit (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--ivory));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--stone) / 0.5);
+    border-radius: 5px;
+    border: 2px solid hsl(var(--ivory));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--stone) / 0.7);
+  }
+
+  /* Custom Scrollbar - Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--stone) / 0.5) hsl(var(--ivory));
+  }
+
+  /* GPU acceleration for animations */
+  .gpu-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+
+  /* Responsive typography with clamp for smooth scaling (matches reference repo) */
+  h1 {
+    font-size: clamp(2.5rem, 5vw + 1rem, 6rem);
+    @apply uppercase tracking-tight leading-none;
+  }
+
+  h2 {
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 3.5rem);
+    @apply tracking-tight leading-tight;
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 2vw + 0.5rem, 2.5rem);
+    @apply leading-tight;
+  }
+
+  h4 {
+    font-size: clamp(1.25rem, 1.5vw + 0.5rem, 1.75rem);
+    @apply leading-tight;
+  }
+
+  /* Optimize images globally */
+  img {
+    content-visibility: auto;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply py-20 md:py-28 lg:py-36 px-6 md:px-12 lg:px-20;
+  }
+
+  .container-luxury {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Logo scroll animation */
+  @keyframes logo-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-25%); }
+  }
+
+  /* Cinematic Card */
+  .card-cinematic {
+    @apply relative overflow-hidden transition-all duration-700 ease-out;
+  }
+
+  .card-cinematic::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+    background: radial-gradient(circle at 50% 50%, hsl(var(--pear) / 0.2), transparent 70%);
+  }
+
+  .card-cinematic:hover::before {
+    @apply opacity-100;
+  }
+
+  .card-cinematic:hover {
+    @apply -translate-y-2;
+    box-shadow: 0 25px 50px -12px hsl(var(--night-green) / 0.25);
+  }
+
+  .text-body-large {
+    @apply text-lg md:text-xl lg:text-[22px] leading-relaxed;
+  }
+
+  .text-body {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-sm leading-relaxed;
+  }
+
+  /* Gradient section backgrounds */
+  .gradient-section-light {
+    background: linear-gradient(180deg, 
+      hsl(var(--ivory)) 0%, 
+      hsl(var(--pear) / 0.15) 50%,
+      hsl(var(--ivory)) 100%
+    );
+  }
+
+  .gradient-section-dark {
+    background: linear-gradient(180deg,
+      hsl(var(--night-green)) 0%,
+      hsl(var(--slate-moss) / 0.8) 50%,
+      hsl(var(--night-green)) 100%
+    );
+  }
+
+  /* Text shimmer animation */
+  @keyframes text-shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--ivory)) 0%,
+      hsl(var(--pear)) 25%,
+      hsl(var(--ivory)) 50%,
+      hsl(var(--pear)) 75%,
+      hsl(var(--ivory)) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: text-shimmer 4s linear infinite;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .underline-reveal {
+    position: relative;
+    text-decoration: none;
+  }
+
+  .underline-reveal::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: hsl(var(--pear));
+    transition: width 0.3s ease;
+  }
+
+  .underline-reveal:hover::after {
+    width: 100%;
+  }
+}
+
+/* Pattern Overlay */
+.pattern-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fafaf7' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
