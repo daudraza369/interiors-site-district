@@ -46,6 +46,7 @@ async function getHomePageData() {
       sectionDivider: { enabled: true, transitionText: 'But the research goes deeper' },
     },
     testimonials: [],
+    showrooms: [],
   }
 
   let payload
