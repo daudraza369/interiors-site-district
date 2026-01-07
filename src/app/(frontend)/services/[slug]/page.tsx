@@ -1,5 +1,3 @@
-import { getPayload } from 'payload'
-import config from '@payload-config'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ServiceSubPageClient } from './ServiceSubPageClient'
@@ -34,24 +32,9 @@ const serviceMetadata: Record<string, { title: string; eyebrow: string; descript
 }
 
 async function getServiceSubPageData(slug: string) {
-  try {
-    const payload = await getPayload({ config })
-    const servicePage = await payload.findGlobal({
-      slug: 'service-sub-pages',
-      depth: 1,
-    })
-
-    // Get service-specific data from global or use defaults
-    const serviceData = servicePage?.services?.find((s: any) => s.slug === slug) || serviceMetadata[slug]
-
-    return { servicePage, serviceData }
-  } catch (error: any) {
-    console.error('Error fetching Service Sub Page data:', error)
-    return {
-      servicePage: null,
-      serviceData: serviceMetadata[slug] || null,
-    }
-  }
+  // Use metadata directly - service-sub-pages global doesn't exist
+  const serviceData = serviceMetadata[slug] || null
+  return { serviceData }
 }
 
 type Props = {
