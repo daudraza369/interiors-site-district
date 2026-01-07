@@ -26,7 +26,7 @@ import { VirtualShowroomSection } from '@/components/sections/VirtualShowroomSec
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { withDefaultsHomePage } from '@/lib/cmsDefaults'
-import { HomePage as HomePageType, VirtualShowroom } from '../../../payload-types'
+import { HomePage as HomePageType, VirtualShowroom } from '../../payload-types'
 
 async function getHomePageData() {
   // Default empty data structure - always return something
