@@ -1,16 +1,18 @@
+[variables]
+PATH = "/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$(npm config get prefix)/bin"
+
 [phases.setup]
 nixPkgs = ["nodejs_22", "npm-9_x", "openssl"]
 cmds = [
   "npm install -g pnpm@latest",
-  "export PATH=\"$PATH:$(npm config get prefix)/bin\"",
-  "echo 'export PATH=\"$PATH:$(npm config get prefix)/bin\"' >> /root/.bashrc"
+  "export PATH=\"$PATH:$(npm config get prefix)/bin\""
 ]
 
 [phases.install]
-cmds = ["bash -c 'source /root/.bashrc && pnpm install' || npx pnpm install"]
+cmds = ["npx --yes pnpm install"]
 
 [phases.build]
-cmds = ["bash -c 'source /root/.bashrc && pnpm run build' || npx pnpm run build"]
+cmds = ["npx --yes pnpm run build"]
 
 [start]
 cmd = "node server.js"
