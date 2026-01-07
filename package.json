@@ -76,6 +76,7 @@
     "reseed:all-sections": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/reseed-all-sections.ts",
     "seed:all": "npm run seed:admin && npm run seed:media && npm run seed:default-images && npm run seed:client-logos",
     "seed:all-sections": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-all-data.ts",
+    "seed:production": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-production.ts",
     "migrate:client-logos": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/migrate-client-logos.ts",
     "fix:database": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-database.ts",
     "fix:schema": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-schema.ts",
