@@ -132,7 +132,7 @@ export function ExpertQuotesCarousel({
 
                 {/* Quote text */}
                 <blockquote className="text-xl md:text-2xl lg:text-3xl text-ivory/90 leading-relaxed font-light italic mb-8 max-w-3xl">
-                  "{currentQuote.quote}"
+                  &ldquo;{currentQuote.quote}&rdquo;
                 </blockquote>
 
                 {/* Author */}

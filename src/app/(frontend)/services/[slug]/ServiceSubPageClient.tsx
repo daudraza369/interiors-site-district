@@ -57,7 +57,7 @@ export function ServiceSubPageClient({ serviceData }: { serviceData: any }) {
             className="text-center max-w-3xl mx-auto"
           >
             <p className="text-slate-moss text-lg">
-              Detailed information about this service is coming soon. We're crafting comprehensive content to help you
+              Detailed information about this service is coming soon. We&apos;re crafting comprehensive content to help you
               understand our offerings.
             </p>
             <p className="text-slate-moss mt-4">

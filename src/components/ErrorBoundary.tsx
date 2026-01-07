@@ -45,7 +45,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <AlertTriangle className="w-16 h-16 text-slate-moss mx-auto mb-4" />
             <h1 className="text-2xl font-heading text-night-green mb-2">Something went wrong</h1>
             <p className="text-slate-moss mb-6">
-              We're sorry, but something unexpected happened. Please try refreshing the page.
+              We&apos;re sorry, but something unexpected happened. Please try refreshing the page.
             </p>
             <div className="flex gap-4 justify-center">
               <Button onClick={this.resetError} variant="default">

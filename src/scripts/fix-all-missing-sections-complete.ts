@@ -106,7 +106,7 @@ async function fixAllSections() {
   console.log('🔧 Fixing ALL missing sections...\n')
   
   const payload = await getPayload({ config: config.default })
-  let homePage = await payload.findGlobal({ slug: 'home-page', depth: 2 })
+  const homePage = await payload.findGlobal({ slug: 'home-page', depth: 2 })
   
   // Step 0: Ensure media is uploaded
   console.log('📦 Step 0: Checking media...')

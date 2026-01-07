@@ -155,7 +155,7 @@ export function TestimonialsSection({
                 className="text-center"
               >
                 <p className="text-2xl md:text-3xl lg:text-4xl text-night-green font-heading leading-relaxed mb-8">
-                  "{displayTestimonials[currentIndex].quote}"
+                  &ldquo;{displayTestimonials[currentIndex].quote}&rdquo;
                 </p>
                 <div className="flex flex-col items-center">
                   <div className="w-12 h-px bg-pear mb-4" />

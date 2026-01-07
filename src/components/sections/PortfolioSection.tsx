@@ -83,7 +83,7 @@ export function PortfolioSection({
             <span className="block text-gradient text-4xl md:text-5xl lg:text-6xl">In Action</span>
           </h2>
           <p className="text-xl text-slate-moss max-w-2xl mx-auto">
-            A showcase of spaces we've brought to life across the region.
+            A showcase of spaces we&apos;ve brought to life across the region.
           </p>
         </motion.div>
 

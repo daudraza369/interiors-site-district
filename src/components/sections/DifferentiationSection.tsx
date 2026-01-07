@@ -195,7 +195,7 @@ export function DifferentiationSection({
                     href={ctaLink}
                     className="text-pear underline-reveal cursor-pointer hover:opacity-80 transition-opacity"
                   >
-                    Let's talk →
+                    Let&apos;s talk →
                   </Link>
                 )}
               </>
@@ -218,7 +218,7 @@ export function DifferentiationSection({
                   href="/contact"
                   className="text-pear underline-reveal cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  Let's talk →
+                  Let&apos;s talk →
                 </Link>
               </>
             )}
