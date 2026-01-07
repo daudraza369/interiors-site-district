@@ -5,6 +5,8 @@ import { ProjectsGallerySection } from '@/components/sections/ProjectsGallerySec
 import { VirtualShowroomSection } from '@/components/sections/VirtualShowroomSection'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { normalizeShowroom } from '@/lib/normalizeShowroom'
+import type { VirtualShowroom } from '../../../payload-types'
 
 async function getProjectsPageData() {
   try {
@@ -49,14 +51,9 @@ async function getProjectsPageData() {
     }))
 
     // Transform showrooms to match component interface
-    const transformedShowrooms = showrooms.docs.map((showroom: any) => ({
-      id: showroom.id.toString(),
-      title: showroom.title || '',
-      description: showroom.description || null,
-      tourUrl: showroom.tourUrl || '',
-      location: showroom.location || null,
-      thumbnail: showroom.thumbnail || null,
-    }))
+    const transformedShowrooms = showrooms.docs.map((showroom: VirtualShowroom) =>
+      normalizeShowroom(showroom)
+    )
 
     return {
       projectsPage,

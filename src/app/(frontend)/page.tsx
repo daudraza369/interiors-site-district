@@ -27,6 +27,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { withDefaultsHomePage } from '@/lib/cmsDefaults'
 import { HomePage as HomePageType, VirtualShowroom } from '../../payload-types'
+import { normalizeShowroom } from '@/lib/normalizeShowroom'
 
 async function getHomePageData() {
   // Default empty data structure - always return something
@@ -340,33 +341,7 @@ export default async function HomePage() {
             badgeText={homePage.virtualShowroomSection?.badgeText}
             headline={homePage.virtualShowroomSection?.headline}
             description={homePage.virtualShowroomSection?.description}
-            showrooms={showrooms.map((showroom: any) => {
-              let thumbnailUrl = ''
-              let thumbnailAlt = showroom.title
-
-              if (showroom.thumbnail) {
-                if (typeof showroom.thumbnail === 'object' && showroom.thumbnail.url) {
-                  thumbnailUrl = showroom.thumbnail.url.startsWith('http')
-                    ? showroom.thumbnail.url
-                    : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}${showroom.thumbnail.url}`
-                  thumbnailAlt = showroom.thumbnail.alt || showroom.title
-                } else if (typeof showroom.thumbnail === 'number') {
-                  console.warn(`Thumbnail for ${showroom.title} is not populated. Ensure depth: 1 is set.`)
-                }
-              }
-
-              return {
-                id: showroom.id.toString(),
-                title: showroom.title || '',
-                description: showroom.description || null,
-                tourUrl: showroom.tourUrl || '',
-                location: showroom.location || null,
-                thumbnail: thumbnailUrl ? {
-                  url: thumbnailUrl,
-                  alt: thumbnailAlt,
-                } : undefined,
-              }
-            })}
+            showrooms={showrooms.map(normalizeShowroom)}
           />
         )}
 
