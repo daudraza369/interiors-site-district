@@ -140,7 +140,7 @@ export default async function ProjectsPage() {
         {projectsPage.gallerySection?.enabled !== false && (
           <ProjectsGallerySection
             enabled={projectsPage.gallerySection?.enabled ?? true}
-            categories={projectsPage.gallerySection?.categories}
+            categories={projectsPage.gallerySection?.categories ?? undefined}
             projects={projectsData}
           />
         )}
