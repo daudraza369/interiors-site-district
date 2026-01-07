@@ -1,9 +1,6 @@
 [phases.setup]
 nixPkgs = ["nodejs_22", "npm-9_x", "openssl"]
-cmds = [
-  "corepack enable || npm install -g pnpm@latest",
-  "pnpm --version || npm install -g pnpm@latest"
-]
+cmds = ["npm install -g pnpm@latest"]
 
 [phases.install]
 cmds = ["pnpm install"]
