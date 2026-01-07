@@ -47,8 +47,8 @@ async function getCollectionData() {
 }
 
 export default async function CollectionPage() {
-  let collectionPageData
-  let collectionItems
+  let collectionPageData: any
+  let collectionItems: any[] = []
   try {
     const result = await getCollectionData()
     collectionPageData = result.collectionPage
