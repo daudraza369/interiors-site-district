@@ -2,17 +2,16 @@
 nixPkgs = ["nodejs_22", "npm-9_x", "openssl"]
 cmds = [
   "npm install -g pnpm@latest",
-  "PNPM_PATH=$(npm config get prefix)/bin/pnpm",
-  "ln -sf $PNPM_PATH /usr/local/bin/pnpm",
-  "ln -sf $PNPM_PATH /usr/bin/pnpm",
-  "chmod +x $PNPM_PATH"
+  "export PATH=\"$PATH:$(npm config get prefix)/bin\"",
+  "echo 'export PATH=\"$PATH:$(npm config get prefix)/bin\"' >> ~/.bashrc",
+  "echo 'export PATH=\"$PATH:$(npm config get prefix)/bin\"' >> ~/.profile"
 ]
 
 [phases.install]
-cmds = ["/usr/local/bin/pnpm install || /usr/bin/pnpm install || npx --yes pnpm install"]
+cmds = ["bash -l -c 'pnpm install' || npx --yes pnpm install"]
 
 [phases.build]
-cmds = ["/usr/local/bin/pnpm run build || /usr/bin/pnpm run build || npx --yes pnpm run build"]
+cmds = ["bash -l -c 'pnpm run build' || npx --yes pnpm run build"]
 
 [start]
 cmd = "node server.js"
