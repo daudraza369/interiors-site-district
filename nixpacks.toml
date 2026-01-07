@@ -1,12 +1,15 @@
 [phases.setup]
 nixPkgs = ["nodejs_22", "npm-9_x", "openssl"]
-cmds = ["npm install -g pnpm@latest"]
+cmds = [
+  "npm install -g pnpm@latest",
+  "export PATH=$PATH:$(npm config get prefix)/bin"
+]
 
 [phases.install]
-cmds = ["pnpm install"]
+cmds = ["$(npm config get prefix)/bin/pnpm install || npx pnpm install"]
 
 [phases.build]
-cmds = ["pnpm run build"]
+cmds = ["$(npm config get prefix)/bin/pnpm run build || npx pnpm run build"]
 
 [start]
 cmd = "node server.js"
