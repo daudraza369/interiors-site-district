@@ -38,6 +38,12 @@ if (dbPath && process.env.NODE_ENV === 'production') {
   }
 }
 
+// Ensure media directory exists
+const mediaDir = path.resolve(process.cwd(), 'media')
+if (!fs.existsSync(mediaDir)) {
+  fs.mkdirSync(mediaDir, { recursive: true })
+}
+
 export default buildConfig({
   admin: {
     user: Users.slug,

@@ -22,6 +22,7 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    unoptimized: false,
   },
   // Your Next.js config here
   webpack: (webpackConfig) => {
