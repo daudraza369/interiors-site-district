@@ -54,8 +54,13 @@ async function getServiceSubPageData(slug: string) {
   }
 }
 
-export default async function ServiceSubPage({ params }: { params: { slug: string } }) {
-  const { serviceData } = await getServiceSubPageData(params.slug)
+type Props = {
+  params: Promise<{ slug: string }>
+}
+
+export default async function ServiceSubPage({ params }: Props) {
+  const { slug } = await params
+  const { serviceData } = await getServiceSubPageData(slug)
 
   if (!serviceData) {
     notFound()
