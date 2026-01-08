@@ -28,16 +28,37 @@ if (!process.env.PAYLOAD_SECRET) {
 const { getPayload } = await import('payload')
 const config = await import('@payload-config')
 
-// Media directory - check src/assets first (where files actually are), then fallback to media/
+// Media directory - check multiple possible locations
 const assetsDir = path.resolve(rootDir, 'src', 'assets')
 const mediaDir = path.resolve(rootDir, 'media')
-// Use src/assets if it exists, otherwise use media/
-const actualMediaDir = fs.existsSync(assetsDir) ? assetsDir : mediaDir
+const standaloneMediaDir = path.resolve(rootDir, '.next', 'standalone', 'media')
+
+// Priority: 1) src/assets, 2) media/, 3) .next/standalone/media (for production)
+let actualMediaDir: string
+if (fs.existsSync(assetsDir)) {
+  actualMediaDir = assetsDir
+} else if (fs.existsSync(mediaDir)) {
+  actualMediaDir = mediaDir
+} else if (fs.existsSync(standaloneMediaDir)) {
+  actualMediaDir = standaloneMediaDir
+} else {
+  // Last resort: use media/ and create it if needed
+  actualMediaDir = mediaDir
+  if (!fs.existsSync(actualMediaDir)) {
+    fs.mkdirSync(actualMediaDir, { recursive: true })
+    console.log(`📁 Created media directory: ${actualMediaDir}`)
+  }
+}
+
 console.log(`📁 Media directory: ${actualMediaDir}`)
 console.log(`   Exists: ${fs.existsSync(actualMediaDir)}`)
 if (fs.existsSync(actualMediaDir)) {
-  const files = fs.readdirSync(actualMediaDir)
-  console.log(`   Files found: ${files.length}`)
+  try {
+    const files = fs.readdirSync(actualMediaDir)
+    console.log(`   Files found: ${files.length}`)
+  } catch (error) {
+    console.log(`   ⚠️  Could not read directory: ${error}`)
+  }
 }
 
 // Media files with their alt text
