@@ -171,6 +171,15 @@ export default async function HomePage() {
   // Get client logos from the global (they're now in clientLogosSection.logos array)
   const clientLogos = homePage.clientLogosSection?.logos || []
   
+  // Debug logging in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Client Logos Debug:', {
+      totalLogos: clientLogos.length,
+      firstLogo: clientLogos[0],
+      sectionEnabled: homePage.clientLogosSection?.enabled,
+    })
+  }
+  
   // Sort by displayOrder
   const sortedLogos = [...clientLogos].sort((a: any, b: any) => 
     (a.displayOrder || 0) - (b.displayOrder || 0)
