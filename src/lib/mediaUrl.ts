@@ -5,16 +5,32 @@
 
 /**
  * Get the base server URL for media files
- * Uses NEXT_PUBLIC_SERVER_URL if set, otherwise constructs from request
+ * For server-side rendering, use localhost to avoid DNS resolution issues
+ * For client-side, use the public URL
  */
 export function getServerUrl(): string {
-  // In production, use NEXT_PUBLIC_SERVER_URL if set
+  // Check if we're in a server context (Node.js environment)
+  const isServer = typeof window === 'undefined'
+  
+  if (isServer) {
+    // Server-side: Use localhost to avoid DNS resolution issues
+    // The container can't resolve its own public hostname
+    const port = process.env.PORT || '3000'
+    return `http://localhost:${port}`
+  }
+  
+  // Client-side: Use public URL if set, otherwise construct from window.location
   if (process.env.NEXT_PUBLIC_SERVER_URL) {
     return process.env.NEXT_PUBLIC_SERVER_URL
   }
   
-  // Fallback for development
-  return process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
+  // Fallback: Use current origin
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+  
+  // Last resort fallback
+  return 'http://localhost:3003'
 }
 
 /**

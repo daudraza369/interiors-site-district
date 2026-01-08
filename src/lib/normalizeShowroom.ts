@@ -1,4 +1,5 @@
 import type { VirtualShowroom, Media } from '../../payload-types'
+import { getMediaUrl } from './mediaUrl'
 
 export interface NormalizedShowroom {
   id: string
@@ -24,15 +25,9 @@ export function normalizeShowroom(raw: VirtualShowroom): NormalizedShowroom {
     } else if (typeof raw.thumbnail === 'object' && 'url' in raw.thumbnail) {
       // It's a Media object (populated with depth: 1 or 2)
       const media = raw.thumbnail as Media
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
       
-      // Build the URL
-      let url = ''
-      if (media.url) {
-        url = media.url.startsWith('http')
-          ? media.url
-          : `${serverUrl}${media.url.startsWith('/') ? '' : '/'}${media.url}`
-      }
+      // Use getMediaUrl utility to handle server-side vs client-side URLs
+      const url = getMediaUrl(media.url)
       
       // Return object with url and/or filename
       if (url || media.filename) {
