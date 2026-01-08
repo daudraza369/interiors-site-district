@@ -4,30 +4,37 @@
 import { spawn } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { chdir } from 'process'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // Set environment variables for the standalone server
 process.env.PORT = process.env.PORT || '3000'
-process.env.HOST = process.env.HOST || '0.0.0.0'
+process.env.HOSTNAME = process.env.HOST || '0.0.0.0'
 process.env.NODE_ENV = process.env.NODE_ENV || 'production'
 
-// Path to the standalone server
-const serverPath = path.join(__dirname, '.next', 'standalone', 'server.js')
+// Path to the standalone directory
+const standaloneDir = path.join(__dirname, '.next', 'standalone')
+const serverPath = path.join(standaloneDir, 'server.js')
 
 console.log('🚀 Starting Next.js standalone server...')
 console.log(`   PORT: ${process.env.PORT}`)
-console.log(`   HOST: ${process.env.HOST}`)
+console.log(`   HOSTNAME: ${process.env.HOSTNAME}`)
+console.log(`   Working directory: ${standaloneDir}`)
 console.log(`   Server path: ${serverPath}`)
 
+// Change to standalone directory (required for Next.js standalone)
+chdir(standaloneDir)
+
 // Spawn the standalone server
-const server = spawn('node', [serverPath], {
+const server = spawn('node', ['server.js'], {
   stdio: 'inherit',
+  cwd: standaloneDir,
   env: {
     ...process.env,
     PORT: process.env.PORT,
-    HOST: process.env.HOST,
+    HOSTNAME: process.env.HOSTNAME,
   },
 })
 
