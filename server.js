@@ -149,7 +149,7 @@ function findSource(f, assetsDir) {
 }
 (async () => {
   const { getPayload } = await import('payload')
-  const config = await import('@payload-config')
+  const config = await import(path.join(rootDir, 'src', 'payload.config.ts'))
   const assetsDir = path.join(rootDir, 'src', 'assets')
   const mediaDir = path.join(rootDir, 'media')
   const payload = await getPayload({ config: config.default })
