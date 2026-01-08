@@ -83,7 +83,10 @@ async function syncMediaFiles() {
   
   try {
     const { getPayload } = await import('payload')
-    const config = await import(path.join(__dirname, 'src', 'payload.config.ts'))
+    // Use file:// URL for TypeScript files in ESM
+    const configPath = path.join(__dirname, 'src', 'payload.config.ts')
+    const configUrl = `file://${configPath}`
+    const config = await import(configUrl)
     
     const assetsDir = path.join(__dirname, 'src', 'assets')
     const mediaDir = path.join(__dirname, 'media')
