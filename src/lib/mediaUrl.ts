@@ -20,6 +20,8 @@ export function getServerUrl(): string {
 /**
  * Construct a full URL for a media file
  * Handles both relative and absolute URLs from Payload
+ * Payload 3.0 returns URLs in format: /media/filename.jpg
+ * But serves them through: /api/media/file/filename.jpg
  */
 export function getMediaUrl(mediaUrl: string | undefined | null): string {
   if (!mediaUrl) {
@@ -31,11 +33,31 @@ export function getMediaUrl(mediaUrl: string | undefined | null): string {
     return mediaUrl
   }
   
-  // If relative URL, prepend server URL
   const serverUrl = getServerUrl()
-  const cleanUrl = mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`
   
-  return `${serverUrl}${cleanUrl}`
+  // Payload returns URLs like /media/filename.jpg
+  // We need to convert to /api/media/file/filename.jpg
+  let cleanUrl = mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`
+  
+  // If it's already the API route, use it as-is
+  if (cleanUrl.startsWith('/api/media/file/')) {
+    return `${serverUrl}${cleanUrl}`
+  }
+  
+  // If it's /media/filename, convert to /api/media/file/filename
+  if (cleanUrl.startsWith('/media/')) {
+    const filename = cleanUrl.replace('/media/', '')
+    return `${serverUrl}/api/media/file/${filename}`
+  }
+  
+  // If it's just a filename (no leading slash), use API route directly
+  if (!cleanUrl.startsWith('/')) {
+    return `${serverUrl}/api/media/file/${cleanUrl}`
+  }
+  
+  // If it's a path like /some/path/filename.jpg, extract just the filename
+  const filename = cleanUrl.split('/').pop() || cleanUrl.replace(/^\//, '')
+  return `${serverUrl}/api/media/file/${filename}`
 }
 
 /**
@@ -44,6 +66,8 @@ export function getMediaUrl(mediaUrl: string | undefined | null): string {
  */
 export function getMediaApiUrl(filename: string): string {
   const serverUrl = getServerUrl()
-  return `${serverUrl}/api/media/file/${filename}`
+  // Remove leading slash if present
+  const cleanFilename = filename.startsWith('/') ? filename.slice(1) : filename
+  return `${serverUrl}/api/media/file/${cleanFilename}`
 }
 
