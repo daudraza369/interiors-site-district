@@ -28,6 +28,7 @@ import config from '@payload-config'
 import { withDefaultsHomePage } from '@/lib/cmsDefaults'
 import { HomePage as HomePageType, VirtualShowroom } from '../../payload-types'
 import { normalizeShowroom } from '@/lib/normalizeShowroom'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 async function getHomePageData() {
   // Default empty data structure - always return something
@@ -183,10 +184,8 @@ export default async function HomePage() {
     
     if (logo.logo) {
       if (typeof logo.logo === 'object' && logo.logo.url) {
-        // Payload returns relative URLs, need to make them absolute
-        logoUrl = logo.logo.url.startsWith('http') 
-          ? logo.logo.url 
-          : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}${logo.logo.url}`
+        // Use utility function to construct proper media URL
+        logoUrl = getMediaUrl(logo.logo.url)
         logoAlt = logo.logo.alt || logo.clientName
       } else if (typeof logo.logo === 'number') {
         // If it's just an ID, we'd need to fetch it, but with depth: 2 it should be populated
@@ -214,10 +213,8 @@ export default async function HomePage() {
     
     if (project.heroImage) {
       if (typeof project.heroImage === 'object' && project.heroImage.url) {
-        // Payload returns relative URLs, need to make them absolute
-        imageUrl = project.heroImage.url.startsWith('http') 
-          ? project.heroImage.url 
-          : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}${project.heroImage.url}`
+        // Use utility function to construct proper media URL
+        imageUrl = getMediaUrl(project.heroImage.url)
         imageAlt = project.heroImage.alt || project.title
       } else if (typeof project.heroImage === 'number') {
         // If it's just an ID, with depth: 2 it should be populated
@@ -245,7 +242,7 @@ export default async function HomePage() {
         <HeroSection />
         
         {/* Client Logos Section - Section 2 */}
-        {homePage.clientLogosSection?.enabled !== false && (
+        {homePage.clientLogosSection?.enabled !== false && transformedLogos.length > 0 && (
           <ClientLogosSection
             enabled={homePage.clientLogosSection?.enabled ?? true}
             headline={homePage.clientLogosSection?.headline || 'Industry Leaders'}

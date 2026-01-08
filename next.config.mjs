@@ -21,6 +21,17 @@ const nextConfig = {
         hostname: 'localhost',
         pathname: '/**',
       },
+      // Allow images from any domain (for production)
+      {
+        protocol: 'http',
+        hostname: '**',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+        pathname: '/**',
+      },
     ],
     unoptimized: false,
   },
