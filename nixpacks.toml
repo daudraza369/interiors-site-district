@@ -17,5 +17,5 @@ cmds = ["pnpm install"]
 cmds = ["pnpm run build"]
 
 [start]
-cmd = "node server.js"
+cmd = "pnpm start"
 
