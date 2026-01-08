@@ -197,8 +197,15 @@ export default async function HomePage() {
     
     if (logo.logo) {
       if (typeof logo.logo === 'object' && logo.logo.url) {
+        // Debug: Log the raw URL from Payload
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[DEBUG] Logo ${logo.clientName} raw URL:`, logo.logo.url)
+        }
         // Use utility function to construct proper media URL
         logoUrl = getMediaUrl(logo.logo.url)
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[DEBUG] Logo ${logo.clientName} final URL:`, logoUrl)
+        }
         logoAlt = logo.logo.alt || logo.clientName
       } else if (typeof logo.logo === 'number') {
         // If it's just an ID, we'd need to fetch it, but with depth: 2 it should be populated
@@ -226,8 +233,15 @@ export default async function HomePage() {
     
     if (project.heroImage) {
       if (typeof project.heroImage === 'object' && project.heroImage.url) {
+        // Debug: Log the raw URL from Payload
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[DEBUG] Project ${project.title} raw URL:`, project.heroImage.url)
+        }
         // Use utility function to construct proper media URL
         imageUrl = getMediaUrl(project.heroImage.url)
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[DEBUG] Project ${project.title} final URL:`, imageUrl)
+        }
         imageAlt = project.heroImage.alt || project.title
       } else if (typeof project.heroImage === 'number') {
         // If it's just an ID, with depth: 2 it should be populated
