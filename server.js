@@ -83,7 +83,7 @@ async function syncMediaFiles() {
   
   try {
     const { getPayload } = await import('payload')
-    const config = await import('@payload-config')
+    const config = await import(path.join(__dirname, 'src', 'payload.config.ts'))
     
     const assetsDir = path.join(__dirname, 'src', 'assets')
     const mediaDir = path.join(__dirname, 'media')
