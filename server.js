@@ -31,7 +31,123 @@ console.log(`   HOSTNAME: ${process.env.HOSTNAME}`)
 console.log(`   Working directory: ${standaloneDir}`)
 console.log(`   Server path: ${serverPath}`)
 
-// Copy media files to standalone directory if they exist
+// Source file mapping for Payload-generated filenames
+const sourceFileMap = {
+  'amazon': 'logos/amazon.png', 'linklaters': 'logos/linklaters.png',
+  'pepsico': 'logos/pepsico.png', 'simah': 'logos/simah.png',
+  'tahakom': 'logos/tahakom.svg', 'hero-interior': 'hero-interior.jpg',
+  'hotel-atrium': 'hotel-atrium.jpg', 'restaurant-plants': 'restaurant-plants.jpg',
+  'district-brandmark': 'district-brandmark.png',
+  'district-brandmark-night-green': 'district-brandmark-night-green.png',
+  'district-brandmark-pear': 'district-brandmark-pear.png',
+  'district-logo-lockup': 'district-logo-lockup.png',
+  'district-logo-lockup-night-green': 'district-logo-lockup-night-green.png',
+  'district-logo': 'district-logo.png',
+  'portfolio-corporate-lobby': 'portfolio-corporate-lobby.jpg',
+  'portfolio-coworking': 'portfolio-coworking.jpg',
+  'portfolio-hotel-atrium': 'portfolio-hotel-atrium.jpg',
+  'portfolio-mall': 'portfolio-mall.jpg', 'portfolio-restaurant': 'portfolio-restaurant.jpg',
+  'portfolio-villa': 'portfolio-villa.jpg', 'plantscaping-service': 'plantscaping-service.jpg',
+  'tree-customization-service': 'tree-customization-service.jpg',
+  'tree-restoration-service': 'tree-restoration-service.jpg',
+  'custom-planter-service': 'custom-planter-service.jpg',
+  'maintenance-service': 'maintenance-service.jpg', 'maintenance-tech': 'maintenance-tech.jpg',
+  'green-wall': 'green-wall.jpg', 'collection-ficus-tree': 'collection-ficus-tree.jpg',
+  'collection-olive-tree': 'collection-olive-tree.jpg',
+  'collection-palm-tree': 'collection-palm-tree.jpg',
+  'flowers-collection': 'flowers-collection.jpg',
+  'flowers-catalog-preview': 'flowers-catalog-preview.png',
+  'olive-tree': 'olive-tree.jpg', 'planters': 'planters.jpg',
+  'tree-detail': 'tree-detail.jpg', 'showroom-kahwet-azmi': 'showroom-kahwet-azmi.png',
+  'showroom-cilicia': 'showroom-cilicia.png', 'showroom-bayaz': 'showroom-bayaz.png',
+}
+
+function getBaseName(filename) {
+  return filename.replace(/\.[^.]+$/, '').replace(/-\d+$/, '')
+}
+
+function findSourceFile(payloadFilename, assetsDir) {
+  const base = getBaseName(payloadFilename)
+  const src = sourceFileMap[base]
+  if (!src) return null
+  const p1 = path.join(assetsDir, src)
+  if (fs.existsSync(p1)) return p1
+  const p2 = path.join(assetsDir, path.basename(src))
+  return fs.existsSync(p2) ? p2 : null
+}
+
+// Sync media files with Payload-generated filenames
+async function syncMediaFiles() {
+  console.log('📁 Syncing media files with Payload database...')
+  
+  try {
+    const { getPayload } = await import('payload')
+    const config = await import('@payload-config')
+    
+    const assetsDir = path.join(__dirname, 'src', 'assets')
+    const mediaDir = path.join(__dirname, 'media')
+    
+    if (!fs.existsSync(mediaDir)) {
+      fs.mkdirSync(mediaDir, { recursive: true })
+    }
+    
+    const payload = await getPayload({ config: config.default })
+    const { docs } = await payload.find({ collection: 'media', limit: 1000 })
+    
+    let copied = 0
+    let skipped = 0
+    let notFound = 0
+    
+    for (const m of docs) {
+      if (!m.filename) {
+        skipped++
+        continue
+      }
+      
+      const src = findSourceFile(m.filename, assetsDir)
+      if (!src) {
+        notFound++
+        continue
+      }
+      
+      const dest = path.join(mediaDir, m.filename)
+      
+      if (fs.existsSync(dest)) {
+        try {
+          if (fs.statSync(src).size === fs.statSync(dest).size) {
+            skipped++
+            continue
+          }
+        } catch (e) {
+          // File exists but can't stat, copy anyway
+        }
+      }
+      
+      try {
+        const dir = path.dirname(dest)
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true })
+        }
+        fs.copyFileSync(src, dest)
+        copied++
+      } catch (e) {
+        notFound++
+      }
+    }
+    
+    console.log(`   ✅ Synced ${copied} files (${skipped} already exist, ${notFound} not found)`)
+  } catch (error) {
+    console.warn(`   ⚠️  Could not sync media files: ${error.message}`)
+    console.warn('   Media files may not be available until next restart.')
+  }
+}
+
+// Start async media sync (don't wait, start server in parallel)
+syncMediaFiles().catch(err => {
+  console.warn('⚠️  Media sync failed, continuing anyway:', err.message)
+})
+
+// Copy media files to standalone directory if they exist (for Next.js static serving)
 if (fs.existsSync(appMediaDir)) {
   console.log('📁 Copying media files to standalone directory...')
   if (!fs.existsSync(standaloneMediaDir)) {
@@ -61,12 +177,12 @@ if (fs.existsSync(appMediaDir)) {
         copied++
       }
     }
-    console.log(`   ✅ Copied ${copied} media files`)
+    console.log(`   ✅ Copied ${copied} media files to standalone`)
   } catch (error) {
     console.warn(`   ⚠️  Error copying media files: ${error.message}`)
   }
 } else {
-  console.log('   ⚠️  Media directory not found at /app/media')
+  console.log('   ⚠️  Media directory not found at /app/media (will be created by sync)')
 }
 
 // Ensure public directory exists in standalone (fonts should be there from build)
