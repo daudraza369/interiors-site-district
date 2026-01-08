@@ -4,6 +4,10 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { HospitalityPageClient } from './HospitalityPageClient'
 
+// Force dynamic rendering to fetch fresh CMS data on every request
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getHospitalityPageData() {
   try {
     const payload = await getPayload({ config })

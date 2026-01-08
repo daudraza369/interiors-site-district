@@ -8,6 +8,10 @@ import config from '@payload-config'
 import { normalizeShowroom } from '@/lib/normalizeShowroom'
 import type { VirtualShowroom } from '../../../payload-types'
 
+// Force dynamic rendering to fetch fresh CMS data on every request
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getProjectsPageData() {
   try {
     const payload = await getPayload({ config })

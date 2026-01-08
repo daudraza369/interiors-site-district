@@ -7,6 +7,10 @@ import config from '@payload-config'
 import { ContactPageClient } from './ContactPageClient'
 import { generatePageMetadata } from '@/lib/metadata'
 
+// Force dynamic rendering to fetch fresh CMS data on every request
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata = generatePageMetadata({
   title: 'Contact Us',
   description:

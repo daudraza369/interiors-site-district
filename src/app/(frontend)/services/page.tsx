@@ -4,6 +4,10 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { ServicesPageClient } from './ServicesPageClient'
 
+// Force dynamic rendering to fetch fresh CMS data on every request
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getServicesPageData() {
   try {
     const payload = await getPayload({ config })

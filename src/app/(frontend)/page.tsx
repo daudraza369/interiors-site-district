@@ -5,6 +5,10 @@ import { WhatsAppButton } from '@/components/ui/WhatsAppButton'
 import { HeroSection } from '@/components/sections/HeroSection'
 import { generatePageMetadata, generateStructuredData } from '@/lib/metadata'
 
+// Force dynamic rendering to fetch fresh CMS data on every request
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata = generatePageMetadata({
   title: 'Home',
   description:
