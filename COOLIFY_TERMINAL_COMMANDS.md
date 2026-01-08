@@ -18,12 +18,6 @@ if (!process.env.PAYLOAD_SECRET) {
   process.exit(1)
 }
 
-const { getPayload } = await import('payload')
-const config = await import('@payload-config')
-
-const assetsDir = path.join(rootDir, 'src', 'assets')
-const mediaDir = path.join(rootDir, 'media')
-
 const sourceMap: Record<string, string> = {
   'amazon': 'logos/amazon.png', 'linklaters': 'logos/linklaters.png',
   'pepsico': 'logos/pepsico.png', 'simah': 'logos/simah.png',
@@ -55,7 +49,7 @@ const sourceMap: Record<string, string> = {
 }
 
 function getBaseName(f: string) { return f.replace(/\.[^.]+$/, '').replace(/-\d+$/, '') }
-function findSource(f: string) {
+function findSource(f: string, assetsDir: string) {
   const base = getBaseName(f)
   const src = sourceMap[base]
   if (!src) return null
@@ -65,14 +59,19 @@ function findSource(f: string) {
   return fs.existsSync(p2) ? p2 : null
 }
 
-async function fix() {
+(async () => {
+  const { getPayload } = await import('payload')
+  const config = await import('@payload-config')
+  const assetsDir = path.join(rootDir, 'src', 'assets')
+  const mediaDir = path.join(rootDir, 'media')
+  
   const payload = await getPayload({ config: config.default })
   if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir, { recursive: true })
   const { docs } = await payload.find({ collection: 'media', limit: 1000 })
   let c = 0, s = 0, n = 0
   for (const m of docs) {
     if (!m.filename) { s++; continue }
-    const src = findSource(m.filename)
+    const src = findSource(m.filename, assetsDir)
     if (!src) { n++; continue }
     const dest = path.join(mediaDir, m.filename)
     if (fs.existsSync(dest)) {
@@ -90,9 +89,7 @@ async function fix() {
     }
   }
   console.log(`\n✨ Done! Copied: ${c}, Skipped: ${s}, Not found: ${n}`)
-}
-
-fix().then(() => process.exit(0)).catch(e => { console.error('💥', e); process.exit(1) })
+})().then(() => process.exit(0)).catch(e => { console.error('💥', e); process.exit(1) })
 ENDOFFILE
 npx tsx /tmp/fix-media.ts
 ```
@@ -108,4 +105,3 @@ ls -la /app/media | head -20
 ```
 
 You should see files like `amazon-33.png`, `linklaters-33.png`, etc.
-
