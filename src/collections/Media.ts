@@ -30,7 +30,9 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    staticDir: path.resolve(process.cwd(), 'media'),
+    // Use absolute path from project root, not relative to cwd
+    // This works even when server runs from .next/standalone
+    staticDir: path.resolve('/app', 'media'),
     staticURL: '/media',
   },
 }
