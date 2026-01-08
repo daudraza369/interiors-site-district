@@ -78,75 +78,151 @@ function findSourceFile(payloadFilename, assetsDir) {
 }
 
 // Sync media files with Payload-generated filenames
-async function syncMediaFiles() {
-  console.log('📁 Syncing media files with Payload database...')
-  
-  try {
-    const { getPayload } = await import('payload')
-    // Use file:// URL for TypeScript files in ESM
-    const configPath = path.join(__dirname, 'src', 'payload.config.ts')
-    const configUrl = `file://${configPath}`
-    const config = await import(configUrl)
+// Spawns the fix script as a separate process since we can't import TS files directly
+function syncMediaFiles() {
+  return new Promise((resolve, reject) => {
+    console.log('📁 Syncing media files with Payload database...')
     
-    const assetsDir = path.join(__dirname, 'src', 'assets')
-    const mediaDir = path.join(__dirname, 'media')
+    const scriptPath = path.join(__dirname, 'src', 'scripts', 'fix-media-filenames.ts')
     
-    if (!fs.existsSync(mediaDir)) {
-      fs.mkdirSync(mediaDir, { recursive: true })
+    // Check if script exists, if not, create inline version
+    if (!fs.existsSync(scriptPath)) {
+      console.log('   ⚠️  Fix script not found, creating inline version...')
+      // Create inline script
+      const inlineScript = `import path from 'path'
+import fs from 'fs'
+const rootDir = '/app'
+const envPath = path.join(rootDir, '.env')
+if (fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, 'utf-8')
+  content.split('\\n').forEach(line => {
+    const match = line.match(/^([^=]+)=(.*)$/)
+    if (match) {
+      const key = match[1].trim()
+      const value = match[2].trim().replace(/^["']|["']$/g, '')
+      process.env[key] = value
     }
-    
-    const payload = await getPayload({ config: config.default })
-    const { docs } = await payload.find({ collection: 'media', limit: 1000 })
-    
-    console.log(`   Found ${docs.length} media entries in database`)
-    
-    let copied = 0
-    let skipped = 0
-    let notFound = 0
-    
-    for (const m of docs) {
-      if (!m.filename) {
-        skipped++
-        continue
-      }
-      
-      const src = findSourceFile(m.filename, assetsDir)
-      if (!src) {
-        notFound++
-        continue
-      }
-      
-      const dest = path.join(mediaDir, m.filename)
-      
-      if (fs.existsSync(dest)) {
-        try {
-          if (fs.statSync(src).size === fs.statSync(dest).size) {
-            skipped++
-            continue
-          }
-        } catch (e) {
-          // File exists but can't stat, copy anyway
-        }
-      }
-      
-      try {
-        const dir = path.dirname(dest)
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true })
-        }
-        fs.copyFileSync(src, dest)
-        copied++
-      } catch (e) {
-        notFound++
-      }
+  })
+}
+if (!process.env.PAYLOAD_SECRET) {
+  console.error('❌ PAYLOAD_SECRET not set')
+  process.exit(1)
+}
+const sourceMap = {
+  'amazon': 'logos/amazon.png', 'linklaters': 'logos/linklaters.png',
+  'pepsico': 'logos/pepsico.png', 'simah': 'logos/simah.png',
+  'tahakom': 'logos/tahakom.svg', 'hero-interior': 'hero-interior.jpg',
+  'hotel-atrium': 'hotel-atrium.jpg', 'restaurant-plants': 'restaurant-plants.jpg',
+  'district-brandmark': 'district-brandmark.png',
+  'district-brandmark-night-green': 'district-brandmark-night-green.png',
+  'district-brandmark-pear': 'district-brandmark-pear.png',
+  'district-logo-lockup': 'district-logo-lockup.png',
+  'district-logo-lockup-night-green': 'district-logo-lockup-night-green.png',
+  'district-logo': 'district-logo.png',
+  'portfolio-corporate-lobby': 'portfolio-corporate-lobby.jpg',
+  'portfolio-coworking': 'portfolio-coworking.jpg',
+  'portfolio-hotel-atrium': 'portfolio-hotel-atrium.jpg',
+  'portfolio-mall': 'portfolio-mall.jpg', 'portfolio-restaurant': 'portfolio-restaurant.jpg',
+  'portfolio-villa': 'portfolio-villa.jpg', 'plantscaping-service': 'plantscaping-service.jpg',
+  'tree-customization-service': 'tree-customization-service.jpg',
+  'tree-restoration-service': 'tree-restoration-service.jpg',
+  'custom-planter-service': 'custom-planter-service.jpg',
+  'maintenance-service': 'maintenance-service.jpg', 'maintenance-tech': 'maintenance-tech.jpg',
+  'green-wall': 'green-wall.jpg', 'collection-ficus-tree': 'collection-ficus-tree.jpg',
+  'collection-olive-tree': 'collection-olive-tree.jpg',
+  'collection-palm-tree': 'collection-palm-tree.jpg',
+  'flowers-collection': 'flowers-collection.jpg',
+  'flowers-catalog-preview': 'flowers-catalog-preview.png',
+  'olive-tree': 'olive-tree.jpg', 'planters': 'planters.jpg',
+  'tree-detail': 'tree-detail.jpg', 'showroom-kahwet-azmi': 'showroom-kahwet-azmi.png',
+  'showroom-cilicia': 'showroom-cilicia.png', 'showroom-bayaz': 'showroom-bayaz.png',
+}
+function getBaseName(f) { return f.replace(/\\.[^.]+$/, '').replace(/-\\d+$/, '') }
+function findSource(f, assetsDir) {
+  const base = getBaseName(f)
+  const src = sourceMap[base]
+  if (!src) return null
+  const p1 = path.join(assetsDir, src)
+  if (fs.existsSync(p1)) return p1
+  const p2 = path.join(assetsDir, path.basename(src))
+  return fs.existsSync(p2) ? p2 : null
+}
+(async () => {
+  const { getPayload } = await import('payload')
+  const config = await import('@payload-config')
+  const assetsDir = path.join(rootDir, 'src', 'assets')
+  const mediaDir = path.join(rootDir, 'media')
+  const payload = await getPayload({ config: config.default })
+  if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir, { recursive: true })
+  const { docs } = await payload.find({ collection: 'media', limit: 1000 })
+  let c = 0, s = 0, n = 0
+  for (const m of docs) {
+    if (!m.filename) { s++; continue }
+    const src = findSource(m.filename, assetsDir)
+    if (!src) { n++; continue }
+    const dest = path.join(mediaDir, m.filename)
+    if (fs.existsSync(dest)) {
+      if (fs.statSync(src).size === fs.statSync(dest).size) { s++; continue }
     }
-    
-    console.log(`   ✅ Synced ${copied} files (${skipped} already exist, ${notFound} not found)`)
-  } catch (error) {
-    console.warn(`   ⚠️  Could not sync media files: ${error.message}`)
-    console.warn(`   Stack: ${error.stack}`)
-    throw error // Re-throw so we know it failed
+    try {
+      const dir = path.dirname(dest)
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+      fs.copyFileSync(src, dest)
+      c++
+    } catch (e) {
+      n++
+    }
   }
+  console.log(\`\\n✨ Done! Copied: \${c}, Skipped: \${s}, Not found: \${n}\`)
+})().then(() => process.exit(0)).catch(e => { console.error('💥', e); process.exit(1) })`
+      
+      const tempScript = path.join(__dirname, 'fix-media-temp.ts')
+      fs.writeFileSync(tempScript, inlineScript)
+      
+      const proc = spawn('npx', ['tsx', tempScript], {
+        stdio: 'inherit',
+        cwd: __dirname,
+      })
+      
+      proc.on('close', (code) => {
+        if (code === 0) {
+          console.log('   ✅ Media sync complete')
+          resolve()
+        } else {
+          reject(new Error(`Media sync failed with code ${code}`))
+        }
+        // Clean up temp file
+        try {
+          fs.unlinkSync(tempScript)
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      })
+      
+      proc.on('error', (err) => {
+        reject(err)
+      })
+    } else {
+      // Use the existing script
+      const proc = spawn('npx', ['tsx', scriptPath], {
+        stdio: 'inherit',
+        cwd: __dirname,
+      })
+      
+      proc.on('close', (code) => {
+        if (code === 0) {
+          console.log('   ✅ Media sync complete')
+          resolve()
+        } else {
+          reject(new Error(`Media sync failed with code ${code}`))
+        }
+      })
+      
+      proc.on('error', (err) => {
+        reject(err)
+      })
+    }
+  })
 }
 
 // Start server function
