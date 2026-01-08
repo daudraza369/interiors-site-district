@@ -79,6 +79,7 @@
     "seed:all-sections": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-all-data.ts",
     "seed:production": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-production.ts",
     "fix:media": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-media-files.ts",
+    "fix:media-filenames": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-media-filenames.ts",
     "migrate:client-logos": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/migrate-client-logos.ts",
     "fix:database": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-database.ts",
     "fix:schema": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-schema.ts",
