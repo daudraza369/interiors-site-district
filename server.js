@@ -1,5 +1,6 @@
 // server.js - Wrapper for Next.js standalone server
 // This ensures the server binds to 0.0.0.0 and uses the correct port
+// And automatically syncs media files with Payload-generated filenames on startup
 
 import { spawn } from 'child_process'
 import path from 'path'
@@ -94,6 +95,8 @@ async function syncMediaFiles() {
     const payload = await getPayload({ config: config.default })
     const { docs } = await payload.find({ collection: 'media', limit: 1000 })
     
+    console.log(`   Found ${docs.length} media entries in database`)
+    
     let copied = 0
     let skipped = 0
     let notFound = 0
@@ -138,103 +141,120 @@ async function syncMediaFiles() {
     console.log(`   ✅ Synced ${copied} files (${skipped} already exist, ${notFound} not found)`)
   } catch (error) {
     console.warn(`   ⚠️  Could not sync media files: ${error.message}`)
-    console.warn('   Media files may not be available until next restart.')
+    console.warn(`   Stack: ${error.stack}`)
+    throw error // Re-throw so we know it failed
   }
 }
 
-// Start async media sync (don't wait, start server in parallel)
-syncMediaFiles().catch(err => {
-  console.warn('⚠️  Media sync failed, continuing anyway:', err.message)
-})
-
-// Copy media files to standalone directory if they exist (for Next.js static serving)
-if (fs.existsSync(appMediaDir)) {
-  console.log('📁 Copying media files to standalone directory...')
-  if (!fs.existsSync(standaloneMediaDir)) {
-    fs.mkdirSync(standaloneMediaDir, { recursive: true })
-  }
-  
-  try {
-    const files = fs.readdirSync(appMediaDir)
-    let copied = 0
-    for (const file of files) {
-      const srcPath = path.join(appMediaDir, file)
-      const destPath = path.join(standaloneMediaDir, file)
-      const stat = fs.statSync(srcPath)
-      
-      if (stat.isDirectory()) {
-        // Copy directory recursively
-        if (!fs.existsSync(destPath)) {
-          fs.mkdirSync(destPath, { recursive: true })
-        }
-        const subFiles = fs.readdirSync(srcPath)
-        for (const subFile of subFiles) {
-          fs.copyFileSync(path.join(srcPath, subFile), path.join(destPath, subFile))
+// Start server function
+function startServer() {
+  // Copy media files to standalone directory if they exist (for Next.js static serving)
+  if (fs.existsSync(appMediaDir)) {
+    console.log('📁 Copying media files to standalone directory...')
+    if (!fs.existsSync(standaloneMediaDir)) {
+      fs.mkdirSync(standaloneMediaDir, { recursive: true })
+    }
+    
+    try {
+      const files = fs.readdirSync(appMediaDir)
+      let copied = 0
+      for (const file of files) {
+        const srcPath = path.join(appMediaDir, file)
+        const destPath = path.join(standaloneMediaDir, file)
+        const stat = fs.statSync(srcPath)
+        
+        if (stat.isDirectory()) {
+          // Copy directory recursively
+          if (!fs.existsSync(destPath)) {
+            fs.mkdirSync(destPath, { recursive: true })
+          }
+          const subFiles = fs.readdirSync(srcPath)
+          for (const subFile of subFiles) {
+            fs.copyFileSync(path.join(srcPath, subFile), path.join(destPath, subFile))
+            copied++
+          }
+        } else {
+          fs.copyFileSync(srcPath, destPath)
           copied++
         }
-      } else {
-        fs.copyFileSync(srcPath, destPath)
-        copied++
+      }
+      console.log(`   ✅ Copied ${copied} media files to standalone`)
+    } catch (error) {
+      console.warn(`   ⚠️  Error copying media files: ${error.message}`)
+    }
+  } else {
+    console.log('   ⚠️  Media directory not found at /app/media')
+  }
+
+  // Ensure public directory exists in standalone (fonts should be there from build)
+  if (!fs.existsSync(standalonePublicDir)) {
+    console.log('📁 Creating public directory in standalone...')
+    fs.mkdirSync(standalonePublicDir, { recursive: true })
+    
+    // Copy fonts if they exist in app public but not in standalone
+    if (fs.existsSync(appPublicDir)) {
+      const fontsSrc = path.join(appPublicDir, 'fonts')
+      const fontsDest = path.join(standalonePublicDir, 'fonts')
+      if (fs.existsSync(fontsSrc) && !fs.existsSync(fontsDest)) {
+        fs.cpSync(fontsSrc, fontsDest, { recursive: true })
+        console.log('   ✅ Copied fonts to standalone')
       }
     }
-    console.log(`   ✅ Copied ${copied} media files to standalone`)
-  } catch (error) {
-    console.warn(`   ⚠️  Error copying media files: ${error.message}`)
   }
-} else {
-  console.log('   ⚠️  Media directory not found at /app/media (will be created by sync)')
-}
 
-// Ensure public directory exists in standalone (fonts should be there from build)
-if (!fs.existsSync(standalonePublicDir)) {
-  console.log('📁 Creating public directory in standalone...')
-  fs.mkdirSync(standalonePublicDir, { recursive: true })
-  
-  // Copy fonts if they exist in app public but not in standalone
-  if (fs.existsSync(appPublicDir)) {
-    const fontsSrc = path.join(appPublicDir, 'fonts')
-    const fontsDest = path.join(standalonePublicDir, 'fonts')
-    if (fs.existsSync(fontsSrc) && !fs.existsSync(fontsDest)) {
-      fs.cpSync(fontsSrc, fontsDest, { recursive: true })
-      console.log('   ✅ Copied fonts to standalone')
+  // Change to standalone directory (required for Next.js standalone)
+  chdir(standaloneDir)
+
+  // Spawn the standalone server
+  const server = spawn('node', ['server.js'], {
+    stdio: 'inherit',
+    cwd: standaloneDir,
+    env: {
+      ...process.env,
+      PORT: process.env.PORT,
+      HOSTNAME: process.env.HOSTNAME,
+    },
+  })
+
+  server.on('error', (error) => {
+    console.error('❌ Failed to start server:', error)
+    process.exit(1)
+  })
+
+  server.on('exit', (code) => {
+    if (code !== 0) {
+      console.error(`❌ Server exited with code ${code}`)
+      process.exit(code)
     }
-  }
+  })
+
+  // Handle termination signals
+  process.on('SIGTERM', () => {
+    console.log('📴 Received SIGTERM, shutting down gracefully...')
+    server.kill('SIGTERM')
+  })
+
+  process.on('SIGINT', () => {
+    console.log('📴 Received SIGINT, shutting down gracefully...')
+    server.kill('SIGINT')
+  })
 }
 
-// Change to standalone directory (required for Next.js standalone)
-chdir(standaloneDir)
-
-// Spawn the standalone server
-const server = spawn('node', ['server.js'], {
-  stdio: 'inherit',
-  cwd: standaloneDir,
-  env: {
-    ...process.env,
-    PORT: process.env.PORT,
-    HOSTNAME: process.env.HOSTNAME,
-  },
-})
-
-server.on('error', (error) => {
-  console.error('❌ Failed to start server:', error)
-  process.exit(1)
-})
-
-server.on('exit', (code) => {
-  if (code !== 0) {
-    console.error(`❌ Server exited with code ${code}`)
-    process.exit(code)
+// Run media sync BEFORE starting server (must complete first)
+// This ensures files are available when Payload starts serving requests
+async function startWithMediaSync() {
+  try {
+    await syncMediaFiles()
+    console.log('✅ Media sync complete, starting server...')
+  } catch (err) {
+    console.error('❌ Media sync failed:', err.message)
+    console.error('   Stack:', err.stack)
+    console.warn('   Continuing anyway, but media may not be available...')
   }
-})
+  
+  // Now start the server
+  startServer()
+}
 
-// Handle termination signals
-process.on('SIGTERM', () => {
-  console.log('📴 Received SIGTERM, shutting down gracefully...')
-  server.kill('SIGTERM')
-})
-
-process.on('SIGINT', () => {
-  console.log('📴 Received SIGINT, shutting down gracefully...')
-  server.kill('SIGINT')
-})
-
+// Start the application with media sync
+startWithMediaSync()
