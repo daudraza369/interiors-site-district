@@ -9,9 +9,13 @@ import config from '@payload-config'
 
 export const dynamic = 'force-dynamic'
 
+type Props = {
+  params: Promise<{ filename: string }>
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ filename: string }> }
+  { params }: Props
 ) {
   try {
     const { filename } = await params
