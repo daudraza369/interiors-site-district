@@ -812,6 +812,9 @@ export const HomePage: GlobalConfig = {
                       type: 'upload',
                       relationTo: 'media',
                       required: true,
+                      admin: {
+                        description: 'Upload a hero image for this portfolio project',
+                      },
                     },
                     {
                       name: 'displayOrder',

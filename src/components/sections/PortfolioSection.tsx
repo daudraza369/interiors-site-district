@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface Project {
   id?: string

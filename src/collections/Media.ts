@@ -134,5 +134,16 @@ export const Media: CollectionConfig = {
     // This works even when server runs from .next/standalone
     staticDir: path.resolve('/app', 'media'),
     staticURL: '/media',
+    // Enable admin thumbnails for better UX in admin panel
+    adminThumbnail: 'thumbnail',
+    // Generate thumbnail size for admin panel
+    imageSizes: [
+      {
+        name: 'thumbnail',
+        width: 400,
+        height: 300,
+        position: 'centre',
+      },
+    ],
   },
 }
