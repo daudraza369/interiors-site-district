@@ -9,6 +9,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Ensure static files are served correctly in production
+  // This prevents ChunkLoadError in standalone deployments
+  experimental: {
+    outputFileTracingIncludes: {
+      '/': ['./public/**/*'],
+    },
+  },
   images: {
     remotePatterns: [
       {

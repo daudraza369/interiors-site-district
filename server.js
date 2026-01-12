@@ -281,6 +281,26 @@ function startServer() {
     }
   }
 
+  // Ensure .next/static exists in standalone directory for Next.js to serve chunks
+  const standaloneStaticDir = path.join(standaloneDir, '.next', 'static')
+  const rootStaticDir = path.join(__dirname, '.next', 'static')
+  
+  if (!fs.existsSync(standaloneStaticDir) && fs.existsSync(rootStaticDir)) {
+    // Create parent directory
+    const standaloneNextDir = path.join(standaloneDir, '.next')
+    if (!fs.existsSync(standaloneNextDir)) {
+      fs.mkdirSync(standaloneNextDir, { recursive: true })
+    }
+    // Copy static files to standalone directory so Next.js can find them
+    try {
+      const { cpSync } = await import('fs')
+      cpSync(rootStaticDir, standaloneStaticDir, { recursive: true })
+      console.log('   ✅ Copied .next/static to standalone directory')
+    } catch (err) {
+      console.warn('   ⚠️  Could not copy static files:', err.message)
+    }
+  }
+  
   // Change to standalone directory (required for Next.js standalone)
   chdir(standaloneDir)
 
