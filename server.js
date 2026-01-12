@@ -4,6 +4,7 @@
 // Serves /media/* statically BEFORE passing requests to Next.js
 
 import { createServer, request } from 'http'
+import { spawn } from 'node:child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { chdir } from 'process'
