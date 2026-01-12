@@ -91,12 +91,22 @@ export function PortfolioSection({
         {/* Portfolio Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {displayProjects.map((project, index) => {
-            const imageUrl = typeof project.heroImage === 'string' 
-              ? project.heroImage 
-              : project.heroImage?.url || ''
-            const imageAlt = typeof project.heroImage === 'object' 
-              ? project.heroImage?.alt || project.title 
-              : project.title
+            // Use getMediaUrl utility for consistent URL handling
+            let imageUrl = ''
+            let imageAlt = project.title
+            
+            if (project.heroImage) {
+              if (typeof project.heroImage === 'string') {
+                imageUrl = getMediaUrl(project.heroImage)
+              } else if (typeof project.heroImage === 'object') {
+                if (project.heroImage.url) {
+                  imageUrl = getMediaUrl(project.heroImage.url)
+                } else if (project.heroImage.filename) {
+                  imageUrl = getMediaUrl(`/media/${project.heroImage.filename}`)
+                }
+                imageAlt = project.heroImage.alt || project.title
+              }
+            }
 
             return (
               <motion.div

@@ -8,8 +8,22 @@ import Image from 'next/image'
 import heroImage from '@/assets/hero-interior.jpg'
 import hotelAtriumImg from '@/assets/hotel-atrium.jpg'
 import restaurantImg from '@/assets/restaurant-plants.jpg'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
-const slides = [
+interface HeroSlide {
+  image?: string | { url?: string; filename?: string } | number | null
+  title: string
+  eyebrow?: string | null
+  subtitle?: string | null
+  description?: string | null
+}
+
+interface HeroSectionProps {
+  slides?: HeroSlide[]
+}
+
+// Default slides fallback
+const defaultSlides = [
   {
     image: heroImage,
     title: 'BEYOND DESIGN',
@@ -51,31 +65,55 @@ const HeroBackground = memo(
     currentSlide,
     backgroundY,
     scale,
+    slides,
   }: {
     currentSlide: number
     backgroundY: any
     scale: any
-  }) => (
-    <motion.div className="absolute inset-0 will-change-transform" style={{ y: backgroundY, scale }}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: 'easeOut' }}
-          className="absolute inset-0"
-        >
-          <Image
-            src={slides[currentSlide].image}
-            alt={slides[currentSlide].title}
-            fill
-            className="object-cover"
-            priority
-            quality={90}
-          />
-        </motion.div>
-      </AnimatePresence>
+    slides: Array<{ image: any; title: string }>
+  }) => {
+    const getImageSrc = (image: any): string => {
+      if (!image) return ''
+      if (typeof image === 'string') {
+        // If it's already a URL string, use getMediaUrl to normalize it
+        return getMediaUrl(image)
+      }
+      if (typeof image === 'object' && image.url) {
+        return getMediaUrl(image.url)
+      }
+      if (typeof image === 'object' && image.filename) {
+        return getMediaUrl(`/media/${image.filename}`)
+      }
+      // Fallback for static imports
+      return image
+    }
+    
+    const imageSrc = getImageSrc(slides[currentSlide]?.image)
+    const slideTitle = slides[currentSlide]?.title || ''
+    
+    return (
+      <motion.div className="absolute inset-0 will-change-transform" style={{ y: backgroundY, scale }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            className="absolute inset-0"
+          >
+            {imageSrc && (
+              <Image
+                src={imageSrc}
+                alt={slideTitle}
+                fill
+                className="object-cover"
+                priority
+                quality={90}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
 
       {/* Optimized gradient overlays - single div with multiple gradients */}
       <div
@@ -93,7 +131,18 @@ const HeroBackground = memo(
 
 HeroBackground.displayName = 'HeroBackground'
 
-export function HeroSection() {
+export function HeroSection({ slides: cmsSlides }: HeroSectionProps = {}) {
+  // Use CMS slides if provided, otherwise use defaults
+  const slides = cmsSlides && cmsSlides.length > 0 
+    ? cmsSlides.map(slide => ({
+        image: slide.image,
+        title: slide.title || '',
+        eyebrow: slide.eyebrow || '',
+        subtitle: slide.subtitle || '',
+        description: slide.description || '',
+      }))
+    : defaultSlides
+  
   const [isLoaded, setIsLoaded] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [sectionElement, setSectionElement] = useState<HTMLElement | null>(null)
@@ -119,11 +168,12 @@ export function HeroSection() {
   }, [])
 
   useEffect(() => {
+    if (slides.length === 0) return
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length)
     }, 7000)
     return () => clearInterval(timer)
-  }, [])
+  }, [slides.length])
 
   const scrollToPortfolio = () => {
     document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })
@@ -147,7 +197,7 @@ export function HeroSection() {
       }}
       className="relative min-h-screen overflow-hidden bg-deep-forest contain-layout"
     >
-      <HeroBackground currentSlide={currentSlide} backgroundY={backgroundY} scale={scale} />
+      <HeroBackground currentSlide={currentSlide} backgroundY={backgroundY} scale={scale} slides={slides} />
 
       {/* Static glow accent - no animation */}
       <div
@@ -172,7 +222,7 @@ export function HeroSection() {
                   transition={{ duration: 0.6, ease: easing, delay: 0.1 }}
                   className="text-pear text-sm md:text-base uppercase tracking-[0.3em] font-nav mb-4"
                 >
-                  {slides[currentSlide].subtitle}
+                  {slides[currentSlide]?.subtitle || slides[currentSlide]?.eyebrow || ''}
                 </motion.p>
 
                 {/* Main headline - optimized shimmer */}
@@ -184,9 +234,9 @@ export function HeroSection() {
                   transition={{ duration: 0.6, ease: easing, delay: 0.2 }}
                   className="text-ivory mb-6 font-heading uppercase tracking-tight leading-[0.9]"
                 >
-                  <span className="block">{slides[currentSlide].title.split(' ')[0]}</span>
+                  <span className="block">{(slides[currentSlide]?.title || '').split(' ')[0]}</span>
                   <span className="block text-shimmer-optimized">
-                    {slides[currentSlide].title.split(' ').slice(1).join(' ')}
+                    {(slides[currentSlide]?.title || '').split(' ').slice(1).join(' ')}
                   </span>
                 </motion.h1>
 
@@ -198,7 +248,7 @@ export function HeroSection() {
                   exit="exit"
                   transition={{ duration: 0.6, ease: easing, delay: 0.3 }}
                   className="text-xl md:text-2xl text-stone font-body mb-4 leading-relaxed max-w-2xl"
-                  dangerouslySetInnerHTML={{ __html: slides[currentSlide].description }}
+                  dangerouslySetInnerHTML={{ __html: slides[currentSlide]?.description || '' }}
                 />
               </motion.div>
             </AnimatePresence>
@@ -253,7 +303,7 @@ export function HeroSection() {
                 ))}
               </div>
               <span className="text-xs text-stone/50 uppercase tracking-widest font-nav">
-                {String(slides.length).padStart(2, '0')}
+                {slides.length > 0 ? String(slides.length).padStart(2, '0') : '01'}
               </span>
             </motion.div>
           </div>

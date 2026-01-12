@@ -771,10 +771,12 @@ export const HomePage: GlobalConfig = {
                 },
                 {
                   name: 'projects',
-                  label: 'Projects',
+                  label: 'Portfolio Projects',
                   type: 'array',
+                  required: false,
+                  minRows: 0,
                   admin: {
-                    description: 'Add portfolio projects to display',
+                    description: 'Add portfolio projects to display on the home page. Each project needs a title, type, description, and hero image.',
                   },
                   fields: [
                     {

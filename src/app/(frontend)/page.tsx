@@ -266,7 +266,7 @@ export default async function HomePage() {
       <Header />
       <main suppressHydrationWarning>
         {/* Hero Section - Section 1 */}
-        <HeroSection />
+        <HeroSection slides={homePage.heroSection?.slides || []} />
         
         {/* Client Logos Section - Section 2 */}
         {homePage.clientLogosSection?.enabled !== false && transformedLogos.length > 0 && (
