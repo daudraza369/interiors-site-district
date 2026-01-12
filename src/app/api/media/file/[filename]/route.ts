@@ -70,8 +70,8 @@ export async function GET(
     // Get Payload instance
     const payload = await getPayload({ config })
     
-    // Find media by filename
-    const mediaResult = await payload.find({
+    // Find media by filename - try exact match first
+    let mediaResult = await payload.find({
       collection: 'media',
       where: {
         filename: {
@@ -81,15 +81,50 @@ export async function GET(
       limit: 1,
     })
 
+    // If not found, try matching by base name (strip numbers like -34, -2, etc.)
+    // This handles cases where database has "hero-interior-34.jpg" but request is "hero-interior.jpg"
+    if (mediaResult.docs.length === 0) {
+      const ext = path.extname(sanitizedFilename)
+      const nameWithoutExt = path.basename(sanitizedFilename, ext)
+      const baseNamePattern = nameWithoutExt.replace(/-\d+$/, '') // Remove trailing numbers
+      
+      // Find all media files with similar base name
+      const allMedia = await payload.find({
+        collection: 'media',
+        where: {
+          filename: {
+            contains: baseNamePattern,
+          },
+        },
+        limit: 20,
+      })
+      
+      // Find the best match - file that starts with base name and has same extension
+      const bestMatch = allMedia.docs.find((m: any) => {
+        const dbFilename = m.filename
+        const dbNameWithoutExt = path.basename(dbFilename, path.extname(dbFilename))
+        const dbBaseName = dbNameWithoutExt.replace(/-\d+$/, '')
+        return dbBaseName === baseNamePattern && path.extname(dbFilename) === ext
+      })
+      
+      if (bestMatch) {
+        mediaResult = { docs: [bestMatch] }
+      }
+    }
+
     if (mediaResult.docs.length === 0) {
       return NextResponse.json({ error: 'Media not found in database' }, { status: 404 })
     }
 
     const media = mediaResult.docs[0]
     
+    // Use the ACTUAL filename from database (which may have numbers like -34)
+    // This is critical because files on disk are named with the database filename
+    const actualFilename = media.filename
+    
     // Get media directory path
     const mediaDir = getMediaDirectory()
-    const filePath = path.join(mediaDir, sanitizedFilename)
+    const filePath = path.join(mediaDir, actualFilename)
 
     // Check if file exists
     if (!fs.existsSync(filePath)) {
@@ -122,8 +157,8 @@ export async function GET(
     const fileBuffer = fs.readFileSync(filePath)
     const fileStats = fs.statSync(filePath)
 
-    // Get MIME type
-    const ext = path.extname(sanitizedFilename).toLowerCase()
+    // Get MIME type - use actual filename from database
+    const ext = path.extname(actualFilename).toLowerCase()
     const mimeTypes: Record<string, string> = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
