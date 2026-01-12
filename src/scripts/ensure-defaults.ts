@@ -134,9 +134,16 @@ async function ensureDefaults() {
 
     // Check and ensure portfolio projects
     const existingProjects = homePage.portfolioSection?.projects || []
-    const existingProjectTitles = new Set(existingProjects.map((p: any) => p.title))
+    const existingProjectTitles = new Set(existingProjects.map((p: any) => p.title || '').filter(Boolean))
+    const defaultTitles = new Set(defaultPortfolioProjects.map(p => p.title))
+    const hasAllDefaults = defaultTitles.size > 0 && [...defaultTitles].every(title => existingProjectTitles.has(title))
     
-    if (existingProjects.length === 0 || existingProjectTitles.size < defaultPortfolioProjects.length) {
+    console.log(`   📊 Current portfolio projects: ${existingProjects.length}`)
+    if (existingProjects.length > 0) {
+      console.log(`   📋 Existing titles: ${Array.from(existingProjectTitles).join(', ')}`)
+    }
+    
+    if (!hasAllDefaults || existingProjects.length < defaultPortfolioProjects.length) {
       console.log('📦 Ensuring portfolio projects...')
       const projectsToAdd: any[] = [...existingProjects]
       let missingImages = false
