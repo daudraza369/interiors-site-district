@@ -126,7 +126,8 @@ const HeroBackground = memo(
         }}
       />
     </motion.div>
-  ),
+    )
+  },
 )
 
 HeroBackground.displayName = 'HeroBackground'
