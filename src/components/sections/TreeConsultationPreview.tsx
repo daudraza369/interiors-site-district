@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import oliveTree from '@/assets/olive-tree.jpg'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface TreeConsultationPreviewProps {
   enabled?: boolean
@@ -68,13 +69,11 @@ export function TreeConsultationPreview({
       // Direct URL string
       imageSrc = backgroundImage
     } else if (backgroundImage.url) {
-      // Payload media object with url - make absolute if relative
-      imageSrc = backgroundImage.url.startsWith('http')
-        ? backgroundImage.url
-        : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}${backgroundImage.url}`
+      // Payload media object with url - use getMediaUrl utility
+      imageSrc = getMediaUrl(backgroundImage.url)
     } else if (backgroundImage.filename) {
-      // Payload media object without url - construct URL
-      imageSrc = `/media/${backgroundImage.filename}`
+      // Payload media object without url - construct URL using utility
+      imageSrc = getMediaUrl(`/media/${backgroundImage.filename}`)
     }
   }
 

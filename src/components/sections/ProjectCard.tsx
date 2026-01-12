@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useRef } from 'react'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface Project {
   id: string
@@ -69,14 +70,16 @@ export function ProjectCard({
   ): string => {
     if (!image) return ''
     if (typeof image === 'string') {
-      if (image.startsWith('http')) return image
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.startsWith('/') ? '' : '/'}${image}`
+      // Use getMediaUrl utility for consistent URL handling
+      return getMediaUrl(image)
     }
     if (image.url) {
-      if (image.url.startsWith('http')) return image.url
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.url.startsWith('/') ? '' : '/'}${image.url}`
+      // Use getMediaUrl utility for consistent URL handling
+      return getMediaUrl(image.url)
+    }
+    if (image.filename) {
+      // Construct URL from filename using utility
+      return getMediaUrl(`/media/${image.filename}`)
     }
     return ''
   }
