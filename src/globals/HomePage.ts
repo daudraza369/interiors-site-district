@@ -811,9 +811,9 @@ export const HomePage: GlobalConfig = {
                       label: 'Hero Image',
                       type: 'upload',
                       relationTo: 'media',
-                      required: true,
+                      required: false, // Made optional so defaults can be created without images
                       admin: {
-                        description: 'Upload a hero image for this portfolio project',
+                        description: 'Upload a hero image for this portfolio project. You can add this later if images haven\'t been seeded yet.',
                       },
                     },
                     {

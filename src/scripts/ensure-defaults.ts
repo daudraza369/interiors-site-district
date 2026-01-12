@@ -110,6 +110,23 @@ async function ensureDefaults() {
 
   try {
     const payload = await getPayload({ config: config.default })
+    
+    // First, check if any portfolio images exist in media collection
+    console.log('🔍 Checking for portfolio images in media collection...')
+    const mediaResult = await payload.find({ collection: 'media', limit: 100 })
+    const mediaFilenames = mediaResult.docs.map((doc: any) => doc.filename || '').filter(Boolean)
+    const hasPortfolioImages = defaultPortfolioProjects.some(project => 
+      mediaFilenames.some((filename: string) => filename.includes(project.imageFilename.replace('.jpg', '')))
+    )
+    
+    if (!hasPortfolioImages) {
+      console.log('   ⚠️  No portfolio images found in media collection')
+      console.log('   💡 Run "npm run seed:media" first to upload portfolio images')
+      console.log('   📝 Projects will be created without images - you can add them in admin later\n')
+    } else {
+      console.log('   ✅ Portfolio images found in media collection\n')
+    }
+    
     const homePage = await payload.findGlobal({ slug: 'home-page', depth: 0 })
 
     let needsUpdate = false
@@ -122,6 +139,7 @@ async function ensureDefaults() {
     if (existingProjects.length === 0 || existingProjectTitles.size < defaultPortfolioProjects.length) {
       console.log('📦 Ensuring portfolio projects...')
       const projectsToAdd: any[] = [...existingProjects]
+      let missingImages = false
       
       for (const projectData of defaultPortfolioProjects) {
         if (!existingProjectTitles.has(projectData.title)) {
@@ -135,11 +153,25 @@ async function ensureDefaults() {
               displayOrder: projectData.displayOrder,
               heroImage: imageId,
             })
-            console.log(`   ✅ Will add: ${projectData.title}`)
+            console.log(`   ✅ Will add: ${projectData.title} (with image)`)
           } else {
-            console.log(`   ⚠️  Image not found: ${projectData.imageFilename} for ${projectData.title}`)
+            // Create project without image - user can add image in admin later
+            projectsToAdd.push({
+              title: projectData.title,
+              description: projectData.description,
+              projectType: projectData.projectType,
+              displayOrder: projectData.displayOrder,
+              // heroImage will be null/undefined - user can add it in admin
+            })
+            console.log(`   ✅ Will add: ${projectData.title} (image missing - add in admin)`)
+            console.log(`      ⚠️  Image not found: ${projectData.imageFilename}`)
+            missingImages = true
           }
         }
+      }
+      
+      if (missingImages) {
+        console.log(`\n   💡 Tip: Run 'npm run seed:media' to upload portfolio images, then re-run this script.`)
       }
 
       if (projectsToAdd.length > existingProjects.length) {
@@ -151,7 +183,8 @@ async function ensureDefaults() {
           projects: projectsToAdd,
         }
         needsUpdate = true
-        console.log(`   ✅ Portfolio: ${projectsToAdd.length} projects (${existingProjects.length} existing + ${projectsToAdd.length - existingProjects.length} new)`)
+        const newCount = projectsToAdd.length - existingProjects.length
+        console.log(`   ✅ Portfolio: ${projectsToAdd.length} projects (${existingProjects.length} existing + ${newCount} new)`)
       } else {
         console.log(`   ℹ️  Portfolio: ${existingProjects.length} projects already exist`)
       }
