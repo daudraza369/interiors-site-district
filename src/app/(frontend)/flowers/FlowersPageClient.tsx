@@ -12,6 +12,7 @@ import {
   Flower2,
   Download,
 } from 'lucide-react'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 const fadeUpVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -50,19 +51,15 @@ export function FlowersPageClient({ flowersPage }: FlowersPageClientProps) {
   const catalogSection = flowersPage?.catalogSection || {}
   const benefitsSection = flowersPage?.benefitsSection || {}
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-
-  // Get catalog preview image URL
+  // Get catalog preview image URL using getMediaUrl utility
   let catalogPreviewUrl = ''
   if (catalogSection?.previewImage) {
     if (typeof catalogSection.previewImage === 'object' && catalogSection.previewImage.url) {
-      catalogPreviewUrl = catalogSection.previewImage.url.startsWith('http')
-        ? catalogSection.previewImage.url
-        : `${serverUrl}${catalogSection.previewImage.url.startsWith('/') ? '' : '/'}${catalogSection.previewImage.url}`
+      catalogPreviewUrl = getMediaUrl(catalogSection.previewImage.url)
     }
   }
   if (!catalogPreviewUrl) {
-    catalogPreviewUrl = `${serverUrl}/api/media/file/flowers-catalog-preview.png` // Fallback
+    catalogPreviewUrl = getMediaUrl('/api/media/file/flowers-catalog-preview.png') // Fallback
   }
 
   return (

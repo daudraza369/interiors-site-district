@@ -141,3 +141,4 @@ ls -la /app/media | head -20
    - API works but admin doesn't show → Check CORS/headers
 3. Apply appropriate solution
 
+

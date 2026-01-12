@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface Service {
   id: string | number
@@ -35,9 +36,7 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
 
     if (service.image) {
       if (typeof service.image === 'object' && service.image.url) {
-        imageUrl = service.image.url.startsWith('http')
-          ? service.image.url
-          : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}${service.image.url}`
+        imageUrl = getMediaUrl(service.image.url)
         imageAlt = service.image.alt || service.title
       } else if (typeof service.image === 'number') {
         console.warn(`Image for ${service.title} is not populated. Ensure depth: 1 is set.`)
@@ -57,9 +56,7 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
   let heroImageUrl = ''
   if (heroSection?.backgroundImage) {
     if (typeof heroSection.backgroundImage === 'object' && heroSection.backgroundImage.url) {
-      heroImageUrl = heroSection.backgroundImage.url.startsWith('http')
-        ? heroSection.backgroundImage.url
-        : `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}${heroSection.backgroundImage.url}`
+      heroImageUrl = getMediaUrl(heroSection.backgroundImage.url)
     } else if (typeof heroSection.backgroundImage === 'number') {
       console.warn('Hero background image is not populated. Ensure depth: 2 is set.')
     }
@@ -67,7 +64,7 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
   
   // Fallback: Use a placeholder or default image URL if none is set
   if (!heroImageUrl) {
-    heroImageUrl = `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'}/api/media/file/hero-interior.jpg`
+    heroImageUrl = getMediaUrl('/api/media/file/hero-interior.jpg')
   }
 
   return (

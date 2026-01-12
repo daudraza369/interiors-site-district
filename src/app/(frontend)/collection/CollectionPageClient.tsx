@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 const categories = [
   'All',
@@ -69,13 +70,11 @@ const ImageModal = ({ isOpen, onClose, item, allItems, onNavigate }: ImageModalP
     }
   }, [isOpen, handleKeyDown])
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
+  // Use getMediaUrl utility for consistent URL handling
   let imageUrl = ''
   if (item?.image) {
     if (typeof item.image === 'object' && item.image.url) {
-      imageUrl = item.image.url.startsWith('http')
-        ? item.image.url
-        : `${serverUrl}${item.image.url.startsWith('/') ? '' : '/'}${item.image.url}`
+      imageUrl = getMediaUrl(item.image.url)
     }
   }
 
@@ -214,13 +213,11 @@ const CollectionCard = ({
   const layoutClass = layoutVariants[index % layoutVariants.length]
   const isTall = layoutClass.includes('row-span-2')
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
+  // Use getMediaUrl utility for consistent URL handling
   let imageUrl = ''
   if (item?.image) {
     if (typeof item.image === 'object' && item.image.url) {
-      imageUrl = item.image.url.startsWith('http')
-        ? item.image.url
-        : `${serverUrl}${item.image.url.startsWith('/') ? '' : '/'}${item.image.url}`
+      imageUrl = getMediaUrl(item.image.url)
     }
   }
 

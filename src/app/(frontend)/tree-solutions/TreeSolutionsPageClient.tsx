@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Sun, Shield, Eye, TreeDeciduous } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface TreeSolutionsPageClientProps {
   treeSolutionsPage: any
@@ -32,38 +33,32 @@ export function TreeSolutionsPageClient({ treeSolutionsPage }: TreeSolutionsPage
   const maintenanceSection = treeSolutionsPage?.maintenanceSection || {}
   const consultationSection = treeSolutionsPage?.consultationSection || {}
 
-  // Get image URLs
+  // Get image URLs using getMediaUrl utility
   const getImageUrl = (image: any): string => {
     if (!image) return ''
     if (typeof image === 'string') {
-      if (image.startsWith('http')) return image
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.startsWith('/') ? '' : '/'}${image}`
+      return getMediaUrl(image)
     }
     if (image.url) {
-      if (image.url.startsWith('http')) return image.url
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.url.startsWith('/') ? '' : '/'}${image.url}`
+      return getMediaUrl(image.url)
     }
     return ''
   }
-
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
   
   // Get image URLs with fallbacks
   let heroImageUrl = getImageUrl(heroSection?.backgroundImage)
   if (!heroImageUrl) {
-    heroImageUrl = `${serverUrl}/api/media/file/olive-tree.jpg`
+    heroImageUrl = getMediaUrl('/api/media/file/olive-tree.jpg')
   }
 
   let materialsImageUrl = getImageUrl(materialsSection?.image)
   if (!materialsImageUrl) {
-    materialsImageUrl = `${serverUrl}/api/media/file/tree-detail.jpg`
+    materialsImageUrl = getMediaUrl('/api/media/file/tree-detail.jpg')
   }
 
   let maintenanceImageUrl = getImageUrl(maintenanceSection?.image)
   if (!maintenanceImageUrl) {
-    maintenanceImageUrl = `${serverUrl}/api/media/file/maintenance-tech.jpg`
+    maintenanceImageUrl = getMediaUrl('/api/media/file/maintenance-tech.jpg')
   }
 
   const scrollToForm = () => {

@@ -77,3 +77,4 @@ The media files should be in your Git repo. If they're missing:
 cd /app && pwd && echo "PAYLOAD_SECRET: ${PAYLOAD_SECRET:0:10}..." && echo "DATABASE_URL: $DATABASE_URL" && ls -la media/ | head -5 && echo "✅ Ready to seed!" || echo "❌ Issues found"
 ```
 
+

@@ -171,3 +171,4 @@ h1 {
 3. **Ensure `.container-luxury` matches reference** (both are `max-w-7xl` = 1280px, so this is fine)
 
 
+

@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import Link from 'next/link'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface AboutPageClientProps {
   aboutPage: any
@@ -23,37 +24,31 @@ export function AboutPageClient({ aboutPage }: AboutPageClientProps) {
   const valuesSection = aboutPage?.valuesSection || {}
   const teamSection = aboutPage?.teamSection || {}
 
-  // Get image URLs
+  // Get image URLs using getMediaUrl utility
   const getImageUrl = (image: any): string => {
     if (!image) return ''
     if (typeof image === 'string') {
-      if (image.startsWith('http')) return image
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.startsWith('/') ? '' : '/'}${image}`
+      return getMediaUrl(image)
     }
     if (image.url) {
-      if (image.url.startsWith('http')) return image.url
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.url.startsWith('/') ? '' : '/'}${image.url}`
+      return getMediaUrl(image.url)
     }
     return ''
   }
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-
   let heroImageUrl = getImageUrl(heroSection?.backgroundImage)
   if (!heroImageUrl) {
-    heroImageUrl = `${serverUrl}/api/media/file/hotel-atrium.jpg`
+    heroImageUrl = getMediaUrl('/api/media/file/hotel-atrium.jpg')
   }
 
   let storyImageUrl = getImageUrl(storySection?.image)
   if (!storyImageUrl) {
-    storyImageUrl = `${serverUrl}/api/media/file/hero-interior.jpg`
+    storyImageUrl = getMediaUrl('/api/media/file/hero-interior.jpg')
   }
 
   let teamImageUrl = getImageUrl(teamSection?.image)
   if (!teamImageUrl) {
-    teamImageUrl = `${serverUrl}/api/media/file/maintenance-tech.jpg`
+    teamImageUrl = getMediaUrl('/api/media/file/maintenance-tech.jpg')
   }
 
   return (
@@ -280,5 +275,6 @@ export function AboutPageClient({ aboutPage }: AboutPageClientProps) {
     </div>
   )
 }
+
 
 

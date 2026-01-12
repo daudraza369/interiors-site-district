@@ -163,3 +163,4 @@ If seeds fail, check the error message and:
 3. Ensure database is writable
 4. Check Coolify logs for more details
 
+

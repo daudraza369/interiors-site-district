@@ -48,3 +48,4 @@ Look for:
 3. **Files exist but wrong path**: `staticDir` configuration issue
 4. **Database entries exist but files missing**: Files deleted or not synced
 
+

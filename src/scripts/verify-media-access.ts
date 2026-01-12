@@ -50,3 +50,4 @@ console.log(`   1. Restart the app in Coolify`)
 console.log(`   2. Check file permissions: chmod 644 /app/media/*`)
 console.log(`   3. Verify Payload can access: curl http://localhost:3000/api/media/file/hero-interior.jpg`)
 
+

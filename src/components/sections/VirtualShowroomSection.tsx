@@ -6,6 +6,7 @@ import { X, Eye, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface Showroom {
   id: string
@@ -117,19 +118,19 @@ const ShowroomCard = ({ showroom, index, onOpenTour }: ShowroomCardProps) => {
     onOpenTour(showroom)
   }
 
+  // Use getMediaUrl utility for consistent URL handling
   const getImageUrl = (
     image: string | { url?: string; filename?: string } | null,
   ): string => {
     if (!image) return ''
     if (typeof image === 'string') {
-      if (image.startsWith('http')) return image
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.startsWith('/') ? '' : '/'}${image}`
+      return getMediaUrl(image)
     }
     if (image.url) {
-      if (image.url.startsWith('http')) return image.url
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.url.startsWith('/') ? '' : '/'}${image.url}`
+      return getMediaUrl(image.url)
+    }
+    if (image.filename) {
+      return getMediaUrl(`/media/${image.filename}`)
     }
     return ''
   }

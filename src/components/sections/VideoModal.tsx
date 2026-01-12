@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, useCallback } from 'react'
+import { getMediaUrl } from '@/lib/mediaUrl'
 
 interface Project {
   id: string
@@ -42,20 +43,18 @@ export function VideoModal({ project, onClose }: VideoModalProps) {
     return null
   }
 
+  // Use getMediaUrl utility for consistent URL handling
   const getImageUrl = (image: string | null | { url?: string; filename?: string }): string => {
     if (!image) return ''
     if (typeof image === 'string') {
-      // If it's already a full URL, return it
-      if (image.startsWith('http')) return image
-      // If it's a relative path, make it absolute
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.startsWith('/') ? '' : '/'}${image}`
+      return getMediaUrl(image)
     }
     // If it's a Payload media object
     if (image.url) {
-      if (image.url.startsWith('http')) return image.url
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3003'
-      return `${serverUrl}${image.url.startsWith('/') ? '' : '/'}${image.url}`
+      return getMediaUrl(image.url)
+    }
+    if (image.filename) {
+      return getMediaUrl(`/media/${image.filename}`)
     }
     return ''
   }
@@ -118,5 +117,6 @@ export function VideoModal({ project, onClose }: VideoModalProps) {
     </AnimatePresence>
   )
 }
+
 
 

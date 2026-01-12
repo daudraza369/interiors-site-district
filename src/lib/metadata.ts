@@ -108,3 +108,4 @@ export function generateStructuredData(type: 'Organization' | 'WebSite' | 'Servi
   }
 }
 
+

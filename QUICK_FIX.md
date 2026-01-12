@@ -43,3 +43,4 @@ The file might not be in the container yet. In that case:
 1. **Redeploy in Coolify** to get the latest code
 2. Then run the script
 
+

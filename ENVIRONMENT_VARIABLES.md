@@ -69,3 +69,4 @@ All should show values (not empty).
 - ✅ Verify persistent storage is mounted in Coolify
 - ✅ Check database file exists: `ls -la /app/data/*.db`
 
+

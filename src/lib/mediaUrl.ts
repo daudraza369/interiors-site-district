@@ -5,32 +5,38 @@
 
 /**
  * Get the base server URL for media files
- * For server-side rendering, use localhost to avoid DNS resolution issues
- * For client-side, use the public URL
+ * For server-side rendering, ALWAYS use localhost to avoid DNS resolution issues
+ * For client-side, use the public URL or current origin
  */
 export function getServerUrl(): string {
   // Check if we're in a server context (Node.js environment)
   const isServer = typeof window === 'undefined'
   
   if (isServer) {
-    // Server-side: Use localhost to avoid DNS resolution issues
-    // The container can't resolve its own public hostname
+    // Server-side: ALWAYS use localhost to avoid DNS resolution issues
+    // The container can't resolve its own public hostname, and NEXT_PUBLIC_SERVER_URL
+    // might be set to an unresolvable domain causing fetch errors
     const port = process.env.PORT || '3000'
     return `http://localhost:${port}`
   }
   
-  // Client-side: Use public URL if set, otherwise construct from window.location
+  // Client-side: Use public URL if set and valid, otherwise use current origin
+  // Only use NEXT_PUBLIC_SERVER_URL if it's a valid URL (not an unresolvable domain)
   if (process.env.NEXT_PUBLIC_SERVER_URL) {
-    return process.env.NEXT_PUBLIC_SERVER_URL
+    const publicUrl = process.env.NEXT_PUBLIC_SERVER_URL
+    // Check if it's a valid URL format (starts with http/https)
+    if (publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) {
+      return publicUrl
+    }
   }
   
-  // Fallback: Use current origin
+  // Fallback: Use current origin (works in browser)
   if (typeof window !== 'undefined') {
     return window.location.origin
   }
   
   // Last resort fallback
-  return 'http://localhost:3003'
+  return 'http://localhost:3000'
 }
 
 /**
