@@ -1,8 +1,9 @@
 // server.js - Wrapper for Next.js standalone server
 // This ensures the server binds to 0.0.0.0 and uses the correct port
 // And automatically syncs media files with Payload-generated filenames on startup
+// Serves /media/* statically BEFORE passing requests to Next.js
 
-import { spawn } from 'child_process'
+import { createServer, request } from 'http'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { chdir } from 'process'
@@ -246,8 +247,8 @@ function findSource(f, assetsDir) {
   })
 }
 
-// Start server function
-function startServer() {
+// Start server function with static /media serving
+async function startServer() {
   // Copy media files to standalone directory if they exist (for Next.js static serving)
   if (fs.existsSync(appMediaDir)) {
     console.log('📁 Copying media files to standalone directory...')
@@ -325,25 +326,124 @@ function startServer() {
   // Change to standalone directory (required for Next.js standalone)
   chdir(standaloneDir)
 
-  // Spawn the standalone server
-  const server = spawn('node', ['server.js'], {
+  // Start Next.js server on internal port, then proxy non-/media requests to it
+  const internalPort = parseInt(process.env.PORT || '3000', 10) + 1 // Use port+1 for internal
+  const publicPort = parseInt(process.env.PORT || '3000', 10)
+  const hostname = process.env.HOSTNAME || '0.0.0.0'
+  
+  // Spawn Next.js server on internal port
+  const nextServer = spawn('node', ['server.js'], {
     stdio: 'inherit',
     cwd: standaloneDir,
     env: {
       ...process.env,
-      PORT: process.env.PORT,
-      HOSTNAME: process.env.HOSTNAME,
+      PORT: internalPort.toString(),
+      HOSTNAME: hostname,
     },
   })
-
-  server.on('error', (error) => {
+  
+  // Wait a bit for Next.js to start
+  await new Promise(resolve => setTimeout(resolve, 2000))
+  
+  // Create HTTP server that serves /media statically, proxies rest to Next.js
+  const httpServer = createServer((req, res) => {
+    const url = req.url || ''
+    
+    // Serve /media/* statically BEFORE passing to Next.js
+    if (url.startsWith('/media/')) {
+      const filename = url.replace('/media/', '')
+      const sanitizedFilename = path.basename(filename)
+      
+      // Security: prevent directory traversal
+      if (sanitizedFilename !== filename || filename.includes('..')) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' })
+        res.end('Invalid filename')
+        return
+      }
+      
+      // Try /app/media first, then fallback to standalone/media
+      let filePath = path.join(appMediaDir, sanitizedFilename)
+      if (!fs.existsSync(filePath)) {
+        filePath = path.join(standaloneMediaDir, sanitizedFilename)
+      }
+      
+      if (fs.existsSync(filePath)) {
+        try {
+          const fileBuffer = fs.readFileSync(filePath)
+          const fileStats = fs.statSync(filePath)
+          const ext = path.extname(sanitizedFilename).toLowerCase()
+          
+          // MIME types
+          const mimeTypes = {
+            '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+            '.svg': 'image/svg+xml', '.gif': 'image/gif', '.webp': 'image/webp',
+            '.avif': 'image/avif', '.ico': 'image/x-icon',
+          }
+          const contentType = mimeTypes[ext] || 'application/octet-stream'
+          
+          res.writeHead(200, {
+            'Content-Type': contentType,
+            'Content-Length': fileStats.size.toString(),
+            'Cache-Control': 'public, max-age=31536000, immutable',
+            'Accept-Ranges': 'bytes',
+            'X-Content-Type-Options': 'nosniff',
+          })
+          res.end(fileBuffer)
+          return
+        } catch (error) {
+          console.error(`[Static Media] Error serving ${sanitizedFilename}:`, error.message)
+          res.writeHead(500, { 'Content-Type': 'text/plain' })
+          res.end('Internal server error')
+          return
+        }
+      } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' })
+        res.end('File not found')
+        return
+      }
+    }
+    
+    // Proxy all other requests to Next.js server
+    const proxyReq = request({
+      hostname: 'localhost',
+      port: internalPort,
+      path: url,
+      method: req.method,
+      headers: req.headers,
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode || 200, proxyRes.headers)
+      proxyRes.pipe(res)
+    })
+    
+    req.pipe(proxyReq)
+    proxyReq.on('error', (err) => {
+      console.error('[Proxy] Error:', err.message)
+      if (!res.headersSent) {
+        res.writeHead(502, { 'Content-Type': 'text/plain' })
+        res.end('Bad Gateway')
+      }
+    })
+  })
+  
+  httpServer.listen(publicPort, hostname, () => {
+    console.log(`✅ Server running on http://${hostname}:${publicPort}`)
+    console.log(`   📁 Serving /media from: ${appMediaDir} (fallback: ${standaloneMediaDir})`)
+    console.log(`   🔄 Proxying other requests to Next.js on port ${internalPort}`)
+  })
+  
+  httpServer.on('error', (error) => {
     console.error('❌ Failed to start server:', error)
     process.exit(1)
   })
+  
+  nextServer.on('error', (error) => {
+    console.error('❌ Failed to start Next.js server:', error)
+    process.exit(1)
+  })
 
-  server.on('exit', (code) => {
+  nextServer.on('exit', (code) => {
     if (code !== 0) {
-      console.error(`❌ Server exited with code ${code}`)
+      console.error(`❌ Next.js server exited with code ${code}`)
       process.exit(code)
     }
   })
@@ -351,12 +451,18 @@ function startServer() {
   // Handle termination signals
   process.on('SIGTERM', () => {
     console.log('📴 Received SIGTERM, shutting down gracefully...')
-    server.kill('SIGTERM')
+    nextServer.kill('SIGTERM')
+    httpServer.close(() => {
+      process.exit(0)
+    })
   })
 
   process.on('SIGINT', () => {
     console.log('📴 Received SIGINT, shutting down gracefully...')
-    server.kill('SIGINT')
+    nextServer.kill('SIGINT')
+    httpServer.close(() => {
+      process.exit(0)
+    })
   })
 }
 
