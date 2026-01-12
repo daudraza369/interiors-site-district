@@ -1,95 +1,76 @@
 /**
  * Utility functions for constructing media URLs
- * Handles both development and production environments
+ * ALWAYS returns relative URLs - never absolute URLs with hostname
+ * This ensures URLs work identically in dev and production
  */
 
 /**
- * Get the base server URL for media files
- * For server-side rendering, ALWAYS use localhost to avoid DNS resolution issues
- * For client-side, use the public URL or current origin
+ * Normalize a media URL to always be relative
+ * Strips any hostname (localhost, domain, etc.) and returns /media/filename or /api/media/file/filename
  */
-export function getServerUrl(): string {
-  // Check if we're in a server context (Node.js environment)
-  const isServer = typeof window === 'undefined'
+function normalizeMediaUrl(url: string): string {
+  if (!url) return ''
   
-  if (isServer) {
-    // Server-side: ALWAYS use localhost to avoid DNS resolution issues
-    // The container can't resolve its own public hostname, and NEXT_PUBLIC_SERVER_URL
-    // might be set to an unresolvable domain causing fetch errors
-    const port = process.env.PORT || '3000'
-    return `http://localhost:${port}`
-  }
-  
-  // Client-side: Use public URL if set and valid, otherwise use current origin
-  // Only use NEXT_PUBLIC_SERVER_URL if it's a valid URL (not an unresolvable domain)
-  if (process.env.NEXT_PUBLIC_SERVER_URL) {
-    const publicUrl = process.env.NEXT_PUBLIC_SERVER_URL
-    // Check if it's a valid URL format (starts with http/https)
-    if (publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) {
-      return publicUrl
+  // Strip any absolute URL (http://, https://) and extract the path
+  let path = url
+  try {
+    // If it's an absolute URL, extract just the pathname
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      const urlObj = new URL(url)
+      path = urlObj.pathname
     }
+  } catch (e) {
+    // If URL parsing fails, assume it's already a path
+    path = url
   }
   
-  // Fallback: Use current origin (works in browser)
-  if (typeof window !== 'undefined') {
-    return window.location.origin
+  // Ensure path starts with /
+  if (!path.startsWith('/')) {
+    path = `/${path}`
   }
   
-  // Last resort fallback
-  return 'http://localhost:3000'
+  // If it's already /media/ or /api/media/file/, return as-is
+  if (path.startsWith('/media/') || path.startsWith('/api/media/file/')) {
+    return path
+  }
+  
+  // If it's a path like /some/path/filename.jpg, extract just the filename
+  const filename = path.split('/').pop() || path.replace(/^\//, '')
+  if (filename) {
+    // Prefer /media/ over /api/media/file/ for direct static serving
+    return `/media/${filename}`
+  }
+  
+  return path
 }
 
 /**
- * Construct a full URL for a media file
- * Handles both relative and absolute URLs from Payload
- * Payload 3.0 returns URLs in format: /media/filename.jpg
- * But serves them through: /api/media/file/filename.jpg
+ * Construct a relative URL for a media file
+ * ALWAYS returns relative URLs (no hostname) to work in both dev and production
+ * 
+ * Handles:
+ * - Absolute URLs (http://localhost:3001/media/file.jpg) → /media/file.jpg
+ * - Relative URLs (/media/file.jpg) → /media/file.jpg
+ * - API URLs (/api/media/file/file.jpg) → /api/media/file/file.jpg
+ * - Filenames (file.jpg) → /media/file.jpg
  */
 export function getMediaUrl(mediaUrl: string | undefined | null): string {
   if (!mediaUrl) {
     return ''
   }
   
-  // If already absolute URL, return as-is
-  if (mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://')) {
-    return mediaUrl
-  }
-  
-  const serverUrl = getServerUrl()
-  
-  // Payload returns URLs like /media/filename.jpg
-  // We need to convert to /api/media/file/filename.jpg
-  let cleanUrl = mediaUrl.startsWith('/') ? mediaUrl : `/${mediaUrl}`
-  
-  // If it's already the API route, use it as-is
-  if (cleanUrl.startsWith('/api/media/file/')) {
-    return `${serverUrl}${cleanUrl}`
-  }
-  
-  // If it's /media/filename, convert to /api/media/file/filename
-  if (cleanUrl.startsWith('/media/')) {
-    const filename = cleanUrl.replace('/media/', '')
-    return `${serverUrl}/api/media/file/${filename}`
-  }
-  
-  // If it's just a filename (no leading slash), use API route directly
-  if (!cleanUrl.startsWith('/')) {
-    return `${serverUrl}/api/media/file/${cleanUrl}`
-  }
-  
-  // If it's a path like /some/path/filename.jpg, extract just the filename
-  const filename = cleanUrl.split('/').pop() || cleanUrl.replace(/^\//, '')
-  return `${serverUrl}/api/media/file/${filename}`
+  // Normalize to relative URL (strips hostname if present)
+  return normalizeMediaUrl(mediaUrl)
 }
 
 /**
- * Get Payload media API URL for a filename
+ * Get Payload media API URL for a filename (relative)
  * Use this when you have a filename but not the full URL
  */
 export function getMediaApiUrl(filename: string): string {
-  const serverUrl = getServerUrl()
   // Remove leading slash if present
   const cleanFilename = filename.startsWith('/') ? filename.slice(1) : filename
-  return `${serverUrl}/api/media/file/${cleanFilename}`
+  // Return relative URL
+  return `/api/media/file/${cleanFilename}`
 }
 
