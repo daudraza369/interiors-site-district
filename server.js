@@ -67,6 +67,27 @@ function getBaseName(filename) {
   return filename.replace(/\.[^.]+$/, '').replace(/-\d+$/, '')
 }
 
+// Recursive copy function for copying directories
+function copyRecursiveSync(src, dest) {
+  const exists = fs.existsSync(src)
+  const stats = exists && fs.statSync(src)
+  const isDirectory = exists && stats.isDirectory()
+  
+  if (isDirectory) {
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true })
+    }
+    fs.readdirSync(src).forEach(childItemName => {
+      copyRecursiveSync(
+        path.join(src, childItemName),
+        path.join(dest, childItemName)
+      )
+    })
+  } else {
+    fs.copyFileSync(src, dest)
+  }
+}
+
 function findSourceFile(payloadFilename, assetsDir) {
   const base = getBaseName(payloadFilename)
   const src = sourceFileMap[base]
@@ -293,8 +314,8 @@ function startServer() {
     }
     // Copy static files to standalone directory so Next.js can find them
     try {
-      const { cpSync } = await import('fs')
-      cpSync(rootStaticDir, standaloneStaticDir, { recursive: true })
+      // Use recursive copy function (Node.js 16+)
+      copyRecursiveSync(rootStaticDir, standaloneStaticDir)
       console.log('   ✅ Copied .next/static to standalone directory')
     } catch (err) {
       console.warn('   ⚠️  Could not copy static files:', err.message)
