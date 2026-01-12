@@ -69,6 +69,7 @@
     "fix:missing": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-all-missing-sections-complete.ts",
     "fix:portfolio": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-portfolio-images.ts",
     "populate:defaults": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/populate-portfolio-defaults.ts",
+    "ensure:defaults": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/ensure-defaults.ts",
     "clear:benefits": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/clear-benefits-data.ts",
     "fix:icon-migration": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-icon-migration.ts",
     "update:why-choose-us": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/update-why-choose-us.ts",

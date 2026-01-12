@@ -80,17 +80,34 @@ async function seedHero() {
     
     const existingSlides = homePage.heroSection?.slides || []
     
-    // If slides already exist, skip
-    if (existingSlides.length > 0) {
-      console.log(`ℹ️  Hero slides already exist (${existingSlides.length} slides)`)
-      console.log('   Skipping seed - slides are already in HomePage global')
+    // Check if we have all default slides (by title)
+    const existingTitles = new Set(existingSlides.map((s: any) => s.title))
+    const defaultTitles = new Set(heroSlidesData.map(s => s.title))
+    const hasAllDefaults = defaultTitles.size > 0 && [...defaultTitles].every(title => existingTitles.has(title))
+    
+    if (hasAllDefaults && existingSlides.length >= heroSlidesData.length) {
+      console.log(`ℹ️  All default hero slides already exist (${existingSlides.length} slides)`)
+      console.log('   Skipping seed - default slides are already in HomePage global')
       process.exit(0)
+    }
+
+    // If we have some but not all, we'll add the missing ones
+    if (existingSlides.length > 0) {
+      console.log(`ℹ️  Found ${existingSlides.length} existing slides, adding missing defaults...`)
     }
     
     // Build slides with images
-    const slidesWithImages: any[] = []
+    // Start with existing slides that aren't in our defaults
+    const existingTitles = new Set(existingSlides.map((s: any) => s.title))
+    const slidesWithImages: any[] = [...existingSlides]
     
     for (const slideData of heroSlidesData) {
+      // Skip if this slide already exists
+      if (existingTitles.has(slideData.title)) {
+        console.log(`ℹ️  Skipping existing slide: ${slideData.title}`)
+        continue
+      }
+
       const imageId = await findMediaByFilename(payload, slideData.imageFilename)
       
       if (!imageId) {

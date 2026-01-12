@@ -113,17 +113,34 @@ async function seedPortfolio() {
     // Get existing projects from the global
     const existingProjects = homePage.portfolioSection?.projects || []
 
-    // Check if projects already exist
-    if (existingProjects.length > 0) {
-      console.log(`ℹ️  Projects already exist (${existingProjects.length} projects)`)
-      console.log('   Skipping seed - projects are already in HomePage global')
+    // Check if we have all default projects (by title)
+    const existingTitles = new Set(existingProjects.map((p: any) => p.title))
+    const defaultTitles = new Set(projectsData.map(p => p.title))
+    const hasAllDefaults = defaultTitles.size > 0 && [...defaultTitles].every(title => existingTitles.has(title))
+
+    if (hasAllDefaults && existingProjects.length >= projectsData.length) {
+      console.log(`ℹ️  All default projects already exist (${existingProjects.length} projects)`)
+      console.log('   Skipping seed - default projects are already in HomePage global')
       process.exit(0)
     }
 
+    // If we have some but not all, we'll add the missing ones
+    if (existingProjects.length > 0) {
+      console.log(`ℹ️  Found ${existingProjects.length} existing projects, adding missing defaults...`)
+    }
+
     // Build projects array with images
-    const projectsWithImages: any[] = []
+    // Start with existing projects that aren't in our defaults
+    const existingTitles = new Set(existingProjects.map((p: any) => p.title))
+    const projectsWithImages: any[] = [...existingProjects]
 
     for (const projectData of projectsData) {
+      // Skip if this project already exists
+      if (existingTitles.has(projectData.title)) {
+        console.log(`ℹ️  Skipping existing project: ${projectData.title}`)
+        continue
+      }
+
       // Find the specific image by filename
       const heroImageId = await findMediaByFilename(payload, projectData.imageFilename)
 
