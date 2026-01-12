@@ -85,7 +85,15 @@ async function findMediaByFilename(payload: any, filename: string): Promise<stri
     const baseName = filename.replace(/\.[^/.]+$/, '')
     const pattern = new RegExp(`^${baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(-\\d+)?\\.`, 'i')
     
-    const result = await payload.find({ collection: 'media', limit: 200 })
+    // Try to query media - may fail if database schema is out of sync
+    let result
+    try {
+      result = await payload.find({ collection: 'media', limit: 200 })
+    } catch (dbError: any) {
+      // Database schema mismatch - return null so we can continue without images
+      console.log(`      ⚠️  Database schema issue - cannot query media collection`)
+      return null
+    }
     
     const matches = result.docs.filter((doc: any) => 
       doc.filename && pattern.test(doc.filename)
@@ -100,7 +108,8 @@ async function findMediaByFilename(payload: any, filename: string): Promise<stri
     })
     
     return matches[0].id
-  } catch {
+  } catch (error: any) {
+    // Any other error - return null
     return null
   }
 }
@@ -113,18 +122,30 @@ async function ensureDefaults() {
     
     // First, check if any portfolio images exist in media collection
     console.log('🔍 Checking for portfolio images in media collection...')
-    const mediaResult = await payload.find({ collection: 'media', limit: 100 })
-    const mediaFilenames = mediaResult.docs.map((doc: any) => doc.filename || '').filter(Boolean)
-    const hasPortfolioImages = defaultPortfolioProjects.some(project => 
-      mediaFilenames.some((filename: string) => filename.includes(project.imageFilename.replace('.jpg', '')))
-    )
+    let hasPortfolioImages = false
+    let mediaFilenames: string[] = []
     
-    if (!hasPortfolioImages) {
-      console.log('   ⚠️  No portfolio images found in media collection')
-      console.log('   💡 Run "npm run seed:media" first to upload portfolio images')
-      console.log('   📝 Projects will be created without images - you can add them in admin later\n')
-    } else {
-      console.log('   ✅ Portfolio images found in media collection\n')
+    try {
+      const mediaResult = await payload.find({ collection: 'media', limit: 100 })
+      mediaFilenames = mediaResult.docs.map((doc: any) => doc.filename || '').filter(Boolean)
+      hasPortfolioImages = defaultPortfolioProjects.some(project => 
+        mediaFilenames.some((filename: string) => filename.includes(project.imageFilename.replace('.jpg', '')))
+      )
+      
+      if (!hasPortfolioImages) {
+        console.log('   ⚠️  No portfolio images found in media collection')
+        console.log('   💡 Run "npm run seed:media" first to upload portfolio images')
+        console.log('   📝 Projects will be created without images - you can add them in admin later\n')
+      } else {
+        console.log('   ✅ Portfolio images found in media collection\n')
+      }
+    } catch (error: any) {
+      console.log('   ⚠️  Error querying media collection (database schema may need migration)')
+      console.log('   💡 This might be a database schema mismatch. Try:')
+      console.log('      1. Restart the dev server to trigger auto-migration')
+      console.log('      2. Or run: npm run payload migrate')
+      console.log('   📝 Continuing anyway - projects will be created without images\n')
+      // Continue anyway - we'll try to find images later
     }
     
     const homePage = await payload.findGlobal({ slug: 'home-page', depth: 0 })
@@ -150,7 +171,15 @@ async function ensureDefaults() {
       
       for (const projectData of defaultPortfolioProjects) {
         if (!existingProjectTitles.has(projectData.title)) {
-          const imageId = await findMediaByFilename(payload, projectData.imageFilename)
+          let imageId: string | null = null
+          
+          // Try to find image, but don't fail if media query has issues
+          try {
+            imageId = await findMediaByFilename(payload, projectData.imageFilename)
+          } catch (error: any) {
+            console.log(`   ⚠️  Could not search for image ${projectData.imageFilename} (database schema issue)`)
+            // Continue without image
+          }
           
           if (imageId) {
             projectsToAdd.push({
@@ -242,11 +271,28 @@ async function ensureDefaults() {
     // Update if needed
     if (needsUpdate) {
       console.log('\n📝 Updating HomePage global...')
-      await payload.updateGlobal({
-        slug: 'home-page',
-        data: updateData,
-      })
-      console.log('✅ HomePage global updated with default content!')
+      try {
+        await payload.updateGlobal({
+          slug: 'home-page',
+          data: updateData,
+        })
+        console.log('✅ HomePage global updated with default content!')
+        
+        if (missingImages) {
+          console.log('\n💡 Next steps:')
+          console.log('   1. Fix database schema: Restart your dev server (Ctrl+C then npm run dev)')
+          console.log('      This will trigger Payload to auto-migrate the database schema')
+          console.log('   2. After restart, run: npm run seed:media (if not already done)')
+          console.log('   3. Then run: npm run ensure:defaults again to link images')
+          console.log('   OR: Add images manually in Admin → Home Page → Portfolio tab')
+        }
+      } catch (updateError: any) {
+        console.error('❌ Error updating HomePage global:', updateError.message || updateError)
+        console.log('\n💡 This might be a database schema issue. Try:')
+        console.log('   1. Restart your dev server (Ctrl+C then npm run dev)')
+        console.log('   2. This will trigger Payload to auto-migrate the database')
+        process.exit(1)
+      }
     } else {
       console.log('\n✅ All default content already exists!')
     }
