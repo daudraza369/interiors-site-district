@@ -6,6 +6,7 @@ import { VirtualShowroomSection } from '@/components/sections/VirtualShowroomSec
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { normalizeShowroom } from '@/lib/normalizeShowroom'
+import { getMediaUrl } from '@/lib/mediaUrl'
 import type { VirtualShowroom } from '../../../payload-types'
 
 // Force dynamic rendering to fetch fresh CMS data on every request
@@ -45,7 +46,6 @@ async function getProjectsPageData() {
 
     // Transform projects to match component interface
     // With depth: 2, heroImage should be populated as a Media object
-    const { getMediaUrl } = await import('@/lib/mediaUrl')
     const transformedProjects = projects.docs.map((project: any) => {
       // Handle heroImage - it might be a Media object or just an ID
       let heroImageUrl: string | null = null
