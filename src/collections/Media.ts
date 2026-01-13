@@ -137,6 +137,25 @@ export const Media: CollectionConfig = {
       ? path.resolve('/app', 'media')
       : path.resolve(process.cwd(), 'media'),
     staticURL: '/media',
+    // Accept both images and videos
+    mimeTypes: [
+      // Images
+      'image/jpeg',
+      'image/png',
+      'image/svg+xml',
+      'image/gif',
+      'image/webp',
+      'image/avif',
+      // Videos
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'video/quicktime',
+      'video/x-msvideo',
+      'video/x-ms-wmv',
+      'video/x-flv',
+      'video/x-matroska',
+    ],
     // Removed imageSizes and adminThumbnail to avoid database schema mismatch
     // These require database migrations that aren't available in production
   },

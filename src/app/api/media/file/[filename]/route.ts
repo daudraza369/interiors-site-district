@@ -215,6 +215,7 @@ export async function GET(
     // Get MIME type - use actual filename from database
     const ext = path.extname(actualFilename).toLowerCase()
     const mimeTypes: Record<string, string> = {
+      // Images
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
       '.png': 'image/png',
@@ -223,6 +224,15 @@ export async function GET(
       '.webp': 'image/webp',
       '.avif': 'image/avif',
       '.ico': 'image/x-icon',
+      // Videos
+      '.mp4': 'video/mp4',
+      '.webm': 'video/webm',
+      '.ogg': 'video/ogg',
+      '.mov': 'video/quicktime',
+      '.avi': 'video/x-msvideo',
+      '.wmv': 'video/x-ms-wmv',
+      '.flv': 'video/x-flv',
+      '.mkv': 'video/x-matroska',
     }
     const contentType = mimeTypes[ext] || media.mimeType || 'application/octet-stream'
 

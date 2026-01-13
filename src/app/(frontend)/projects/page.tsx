@@ -45,7 +45,7 @@ async function getProjectsPageData() {
     ])
 
     // Transform projects to match component interface
-    // With depth: 2, heroImage should be populated as a Media object
+    // With depth: 2, heroImage and video should be populated as Media objects
     const transformedProjects = projects.docs.map((project: any) => {
       // Handle heroImage - it might be a Media object or just an ID
       let heroImageUrl: string | null = null
@@ -58,6 +58,22 @@ async function getProjectsPageData() {
         }
       }
 
+      // Handle video - can be uploaded file (Media object) or external URL
+      let videoUrl: string | null = null
+      if (project.video) {
+        // Video is uploaded file (Media object)
+        if (typeof project.video === 'object' && project.video.url) {
+          // Use getMediaUrl to normalize uploaded video URLs
+          videoUrl = getMediaUrl(project.video.url)
+        } else if (typeof project.video === 'string') {
+          videoUrl = getMediaUrl(project.video)
+        }
+      } else if (project.videoUrl) {
+        // Video is external URL (YouTube, Vimeo, direct link, etc.)
+        // Keep external URLs as-is (don't normalize them)
+        videoUrl = project.videoUrl.trim()
+      }
+
       return {
         id: project.id.toString(),
         title: project.title || '',
@@ -65,7 +81,7 @@ async function getProjectsPageData() {
         location: project.location || null,
         description: project.description || null,
         heroImage: heroImageUrl,
-        videoUrl: project.videoUrl || null,
+        videoUrl: videoUrl,
       }
     })
 
