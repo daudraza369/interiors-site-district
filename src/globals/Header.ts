@@ -86,8 +86,8 @@ export const Header: GlobalConfig = {
           ],
         },
         {
-          label: 'STYLING',
-          href: '/styling',
+          label: 'DESIGN',
+          href: '/design',
           hasDropdown: false,
         },
         {

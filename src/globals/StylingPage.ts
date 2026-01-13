@@ -1,10 +1,10 @@
 import type { GlobalConfig } from 'payload'
 
 export const StylingPage: GlobalConfig = {
-  slug: 'styling-page',
-  label: 'Styling Page',
+  slug: 'styling-page', // Keep slug unchanged to preserve CMS data
+  label: 'Design Page',
   admin: {
-    description: 'Manage content for the Styling page',
+    description: 'Manage content for the Design page',
     group: 'Pages',
   },
   access: {
@@ -32,17 +32,24 @@ export const StylingPage: GlobalConfig = {
                   name: 'eyebrow',
                   label: 'Eyebrow Text',
                   type: 'text',
-                  defaultValue: 'Interior Styling',
+                  defaultValue: 'Interior Design',
                 },
                 {
                   name: 'headline',
                   label: 'Headline',
                   type: 'text',
-                  defaultValue: 'Styling',
+                  defaultValue: 'Design',
                 },
                 {
                   name: 'description',
-                  label: 'Description',
+                  label: 'Hero Description',
+                  type: 'textarea',
+                  defaultValue:
+                    "Bespoke interior design solutions that seamlessly integrate living greenery into your architectural vision.",
+                },
+                {
+                  name: 'contentText',
+                  label: 'Content Section Text',
                   type: 'textarea',
                   defaultValue:
                     "Content coming soon. We're crafting something beautiful for this page.",

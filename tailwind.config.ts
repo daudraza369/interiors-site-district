@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         heading: ['Kalice', 'Playfair Display', 'Georgia', 'serif'],
+        subhead: ['Kalice', 'Playfair Display', 'Georgia', 'serif'],
         body: ['PP Neue Montreal', 'Santana', 'Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
         nav: ['PP Fragment', 'Inter', 'sans-serif'],
       },

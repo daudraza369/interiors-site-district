@@ -130,3 +130,4 @@ cd /app && pnpm run ensure:database && pnpm run seed:client-logos && pnpm run se
 Then restart the app in Coolify dashboard.
 
 
+

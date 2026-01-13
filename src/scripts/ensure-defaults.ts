@@ -164,10 +164,10 @@ async function ensureDefaults() {
       console.log(`   📋 Existing titles: ${Array.from(existingProjectTitles).join(', ')}`)
     }
     
+    let missingImages = false
     if (!hasAllDefaults || existingProjects.length < defaultPortfolioProjects.length) {
       console.log('📦 Ensuring portfolio projects...')
       const projectsToAdd: any[] = [...existingProjects]
-      let missingImages = false
       
       for (const projectData of defaultPortfolioProjects) {
         if (!existingProjectTitles.has(projectData.title)) {
@@ -206,10 +206,6 @@ async function ensureDefaults() {
         }
       }
       
-      if (missingImages) {
-        console.log(`\n   💡 Tip: Run 'npm run seed:media' to upload portfolio images, then re-run this script.`)
-      }
-
       if (projectsToAdd.length > existingProjects.length) {
         updateData.portfolioSection = {
           ...homePage.portfolioSection,

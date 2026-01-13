@@ -6,3 +6,4 @@ echo "export PATH=\"\$PATH:$(npm config get prefix)/bin\"" >> /root/.bashrc
 echo "export PATH=\"\$PATH:$(npm config get prefix)/bin\"" >> /root/.profile
 
 
+

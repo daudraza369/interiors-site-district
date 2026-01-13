@@ -28,13 +28,16 @@ if (!process.env.PAYLOAD_SECRET) {
 const { getPayload } = await import('payload')
 const config = await import('@payload-config')
 
-// Client logos data
+// Client logos data - Updated to match new version from public/logos/
 const clientLogosData = [
-  { name: 'Amazon', filename: 'logos/amazon.png', websiteUrl: 'https://amazon.com', displayOrder: 0 },
-  { name: 'Linklaters', filename: 'logos/linklaters.png', websiteUrl: 'https://linklaters.com', displayOrder: 1 },
-  { name: 'PepsiCo', filename: 'logos/pepsico.png', websiteUrl: 'https://pepsico.com', displayOrder: 2 },
-  { name: 'SIMAH', filename: 'logos/simah.png', websiteUrl: null, displayOrder: 3 },
-  { name: 'Tahakom', filename: 'logos/tahakom.svg', websiteUrl: null, displayOrder: 4 },
+  { name: 'Uber', filename: 'logos/uber.svg', websiteUrl: 'https://uber.com', displayOrder: 0 },
+  { name: 'PepsiCo', filename: 'logos/pepsico.webp', websiteUrl: 'https://pepsico.com', displayOrder: 1 },
+  { name: 'Bain', filename: 'logos/bain.svg', websiteUrl: null, displayOrder: 2 },
+  { name: 'Pret A Manger', filename: 'logos/pretamanger.svg', websiteUrl: null, displayOrder: 3 },
+  { name: 'Google', filename: 'logos/google.svg', websiteUrl: 'https://google.com', displayOrder: 4 },
+  { name: 'BNP Paribas', filename: 'logos/bnp-paribas.svg', websiteUrl: null, displayOrder: 5 },
+  { name: 'Boehringer Ingelheim', filename: 'logos/boehringer-ingelheim.svg', websiteUrl: null, displayOrder: 6 },
+  { name: 'Savvy Games', filename: 'logos/savvy-games.svg', websiteUrl: null, displayOrder: 7 },
 ]
 
 async function findMediaByFilename(payload: any, filename: string): Promise<string | null> {

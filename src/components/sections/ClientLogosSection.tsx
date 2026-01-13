@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 
 interface ClientLogo {
   id: string
@@ -70,47 +69,41 @@ export function ClientLogosSection({
       : client.clientName
 
     return (
-      <div className="flex-shrink-0 mx-10 md:mx-14 lg:mx-20 flex items-center justify-center group">
-        <div className="w-32 md:w-40 h-16 flex items-center justify-center">
-          {logoUrl ? (
-            client.websiteUrl ? (
-              <a 
-                href={client.websiteUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-full h-full"
-              >
-                <Image
-                  src={logoUrl}
-                  alt={logoAlt}
-                  width={160}
-                  height={64}
-                  className="max-w-full max-h-10 md:max-h-12 object-contain opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                />
-              </a>
-            ) : (
-              <Image
-                src={logoUrl}
-                alt={logoAlt}
-                width={160}
-                height={64}
-                className="max-w-full max-h-10 md:max-h-12 object-contain opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-              />
-            )
-          ) : (
-            // Text fallback for missing logos
+      <div className="flex-shrink-0 mx-10 md:mx-14 lg:mx-20 flex items-center justify-center group h-12 md:h-14">
+        {logoUrl ? (
+          client.websiteUrl ? (
             <a 
-              href={client.websiteUrl || '#'} 
+              href={client.websiteUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center justify-center w-full h-full"
+              className="flex items-center justify-center h-full"
             >
-              <span className="text-sm md:text-base font-nav uppercase tracking-wider text-slate-moss/40 group-hover:text-night-green transition-colors duration-500 whitespace-nowrap">
-                {client.clientName}
-              </span>
+              <img 
+                src={logoUrl} 
+                alt={logoAlt}
+                className="h-10 md:h-12 w-auto max-w-[160px] md:max-w-[200px] object-contain opacity-50 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500 ease-out"
+              />
             </a>
-          )}
-        </div>
+          ) : (
+            <img 
+              src={logoUrl} 
+              alt={logoAlt}
+              className="h-10 md:h-12 w-auto max-w-[160px] md:max-w-[200px] object-contain opacity-50 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500 ease-out"
+            />
+          )
+        ) : (
+          // Text fallback for missing logos
+          <a 
+            href={client.websiteUrl || '#'} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center h-full"
+          >
+            <span className="text-xs md:text-sm font-nav uppercase tracking-wider text-slate-moss/40 group-hover:text-night-green transition-colors duration-500 whitespace-nowrap">
+              {client.clientName}
+            </span>
+          </a>
+        )}
       </div>
     )
   }
@@ -126,21 +119,24 @@ export function ClientLogosSection({
 
       <div className="container-luxury px-6 md:px-12 lg:px-20 relative z-10">
         {/* Header - matching the cinematic style */}
-        {headline && (
-          <motion.div
-            initial={{ opacity: 0, y: 30, filter: 'blur(5px)' }}
-            animate={isVisible ? { opacity: 1, y: 0, filter: 'blur(0)' } : {}}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center mb-10"
+        <motion.div
+          initial={{ opacity: 0, y: 30, filter: 'blur(5px)' }}
+          animate={isVisible ? { opacity: 1, y: 0, filter: 'blur(0)' } : {}}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-12"
+        >
+          <p className="text-sm tracking-[0.2em] uppercase text-night-green/50 font-body mb-4">
+            TRUSTED BY GLOBAL LEADERS
+          </p>
+          <h3 
+            className="text-xl md:text-2xl lg:text-3xl font-heading font-bold tracking-wide text-night-green"
+            style={{
+              textShadow: '0 0 40px hsl(72 46% 83% / 0.6), 0 0 80px hsl(72 46% 83% / 0.3)'
+            }}
           >
-            <p className="text-xs tracking-[0.3em] uppercase text-slate-moss/60 font-nav mb-3">
-              Trusted By
-            </p>
-            <h3 className="text-night-green text-2xl md:text-3xl font-heading uppercase tracking-wide">
-              {headline}
-            </h3>
-          </motion.div>
-        )}
+            Transforming the Region's Premier Work Spaces
+          </h3>
+        </motion.div>
       </div>
 
       {/* Logo Marquee */}
@@ -162,10 +158,11 @@ export function ClientLogosSection({
 
         {/* Scrolling container */}
         <div 
-          className="flex items-center py-6 hover:[animation-play-state:paused]"
+          className="flex items-center py-6"
           style={{
-            animation: 'logo-scroll 35s linear infinite',
-            width: 'fit-content'
+            animation: 'logo-scroll 40s linear infinite',
+            width: 'fit-content',
+            willChange: 'transform'
           }}
         >
           {repeatedLogos.map((client, index) => (
@@ -174,7 +171,13 @@ export function ClientLogosSection({
         </div>
       </motion.div>
 
-      {/* Keyframes are in globals.css */}
+      {/* Inline keyframes */}
+      <style>{`
+        @keyframes logo-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-25%); }
+        }
+      `}</style>
     </section>
   )
 }

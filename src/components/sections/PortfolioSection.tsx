@@ -103,7 +103,8 @@ export function PortfolioSection({
                 if (project.heroImage.url) {
                   imageUrl = getMediaUrl(project.heroImage.url)
                 } else if (project.heroImage.filename) {
-                  imageUrl = getMediaUrl(`/media/${project.heroImage.filename}`)
+                  // Use API route for media files to ensure proper serving
+                  imageUrl = `/api/media/file/${project.heroImage.filename}`
                 }
                 imageAlt = project.heroImage.alt || project.title
               }

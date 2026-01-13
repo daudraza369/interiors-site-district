@@ -29,16 +29,22 @@ function normalizeMediaUrl(url: string): string {
     path = `/${path}`
   }
   
-  // If it's already /media/ or /api/media/file/, return as-is
-  if (path.startsWith('/media/') || path.startsWith('/api/media/file/')) {
+  // If it's already /api/media/file/, return as-is (preferred route)
+  if (path.startsWith('/api/media/file/')) {
     return path
+  }
+  
+  // If it's /media/, convert to /api/media/file/ for consistency
+  if (path.startsWith('/media/')) {
+    const filename = path.replace('/media/', '')
+    return `/api/media/file/${filename}`
   }
   
   // If it's a path like /some/path/filename.jpg, extract just the filename
   const filename = path.split('/').pop() || path.replace(/^\//, '')
   if (filename) {
-    // Prefer /media/ over /api/media/file/ for direct static serving
-    return `/media/${filename}`
+    // Use API route for proper serving
+    return `/api/media/file/${filename}`
   }
   
   return path

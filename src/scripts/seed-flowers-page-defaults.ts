@@ -61,26 +61,26 @@ async function seedFlowersPageDefaults() {
     const defaultData: any = {
       heroSection: {
         enabled: true,
-        headline: 'Premium Wholesale Flowers,\nFresh from Source',
+        headline: 'PREMIUM WHOLESALE FLOWERS,\nCATERING RIYADH',
         subheadline:
-          'Direct imports from Holland & Kenya • Weekly shipments • Trusted supplier to Fairmont Hotels',
+          'Direct imports from Holland & Kenya • Weekly shipments • Trusted supplier to global hospitality leaders',
         badges: [
-          { icon: 'Plane', text: 'Holland & Kenya Direct Imports' },
+          { icon: 'Globe', text: 'Global Direct Imports' },
           { icon: 'CalendarClock', text: 'Fresh Weekly Arrivals' },
-          { icon: 'Building2', text: 'Fairmont Hotel Partner' },
+          { icon: 'Star', text: '5-Star Hotel Partner' },
         ],
       },
       catalogSection: {
         enabled: true,
-        eyebrow: 'Download Now',
-        headline: "This Week's Wholesale Pricelist",
+        eyebrow: 'DOWNLOAD NOW',
+        headline: "This Week's\nWholesale Pricelist",
         catalogUrl:
           'https://download1588.mediafire.com/qvunnvifx7ig90xjG3uF2EGBhSEvkIToAlTZkZTYwMAMpjcW9fIlb72B9BqVsQ2ovqC_EPkGuy6Wmkvgd--M-EzrkTr0AEN335sgo2_05pTiuGo_Bzv_K5f1RWDesQlsj5YWF6ARu9ShXTa5lQc67hHQk_tLqnMrPotvFL9ElP6f/488cgm2x4it6hit/DF — Dec 31 2025 — Wholesale Catalog.pdf',
         buttonText: 'Download the Full Catalogue for Latest Arrivals',
       },
       benefitsSection: {
         enabled: true,
-        eyebrow: 'The District Difference',
+        eyebrow: 'THE DISTRICT DIFFERENCE',
         headline: 'Why Choose District Flowers',
         benefits: [
           {
@@ -99,7 +99,7 @@ async function seedFlowersPageDefaults() {
             icon: 'Flower2',
             title: 'Wide Selection',
             description:
-              "Extensive variety from Holland and Kenya's finest specialty farms.",
+              "Extensive variety from the world's finest specialty farms.",
           },
         ],
       },

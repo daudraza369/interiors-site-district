@@ -34,11 +34,11 @@ export const FlowersPage: GlobalConfig = {
                 {
                   name: 'headline',
                   label: 'Headline',
-                  type: 'text',
+                  type: 'textarea',
                   required: true,
-                  defaultValue: 'Premium Wholesale Flowers,\nFresh from Source',
+                  defaultValue: 'PREMIUM WHOLESALE FLOWERS,\nCATERING RIYADH',
                   admin: {
-                    description: 'Main headline (use \\n for line breaks)',
+                    description: 'Main headline (press Shift+Enter for line breaks)',
                   },
                 },
                 {
@@ -73,9 +73,9 @@ export const FlowersPage: GlobalConfig = {
                     },
                   ],
                   defaultValue: [
-                    { icon: 'Plane', text: 'Holland & Kenya Direct Imports' },
+                    { icon: 'Globe', text: 'Global Direct Imports' },
                     { icon: 'CalendarClock', text: 'Fresh Weekly Arrivals' },
-                    { icon: 'Building2', text: 'Fairmont Hotel Partner' },
+                    { icon: 'Star', text: '5-Star Hotel Partner' },
                   ],
                 },
               ],
@@ -108,9 +108,12 @@ export const FlowersPage: GlobalConfig = {
                 {
                   name: 'headline',
                   label: 'Headline',
-                  type: 'text',
+                  type: 'textarea',
                   required: true,
-                  defaultValue: "This Week's Wholesale Pricelist",
+                  defaultValue: "This Week's\nWholesale Pricelist",
+                  admin: {
+                    description: 'Headline (press Shift+Enter for line breaks)',
+                  },
                 },
                 {
                   name: 'previewImage',
@@ -230,6 +233,7 @@ export const FlowersPage: GlobalConfig = {
     },
   ],
 }
+
 
 
 

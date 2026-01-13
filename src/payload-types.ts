@@ -1020,14 +1020,17 @@ export interface HomePage {
      */
     subheadline?: string | null;
     /**
-     * Add portfolio projects to display
+     * Add portfolio projects to display on the home page. Each project needs a title, type, description, and hero image.
      */
     projects?:
       | {
           title: string;
           projectType: 'Offices' | 'F&B' | 'Private Villa' | 'Hospitality' | 'Retail' | 'Other';
           description: string;
-          heroImage: number | Media;
+          /**
+           * Upload a hero image for this portfolio project. You can add this later if images haven't been seeded yet.
+           */
+          heroImage?: (number | null) | Media;
           /**
            * Lower numbers appear first
            */
@@ -1578,7 +1581,7 @@ export interface FlowersPage {
   heroSection: {
     enabled?: boolean | null;
     /**
-     * Main headline (use \n for line breaks)
+     * Main headline (press Shift+Enter for line breaks)
      */
     headline: string;
     /**
@@ -1602,6 +1605,9 @@ export interface FlowersPage {
   catalogSection: {
     enabled?: boolean | null;
     eyebrow?: string | null;
+    /**
+     * Headline (press Shift+Enter for line breaks)
+     */
     headline: string;
     /**
      * Preview image for the catalog
@@ -1657,7 +1663,7 @@ export interface HospitalityPage {
   createdAt?: string | null;
 }
 /**
- * Manage content for the Styling page
+ * Manage content for the Design page
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "styling-page".
@@ -1669,6 +1675,7 @@ export interface StylingPage {
     eyebrow?: string | null;
     headline?: string | null;
     description?: string | null;
+    contentText?: string | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -2359,6 +2366,7 @@ export interface StylingPageSelect<T extends boolean = true> {
         eyebrow?: T;
         headline?: T;
         description?: T;
+        contentText?: T;
       };
   updatedAt?: T;
   createdAt?: T;

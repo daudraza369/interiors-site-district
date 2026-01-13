@@ -67,3 +67,4 @@ The Hero Section is currently hardcoded in the component and doesn't read from C
 This requires code changes and is a separate task from the media fix.
 
 
+

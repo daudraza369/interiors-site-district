@@ -23,31 +23,48 @@ function getMediaDirectory(): string {
   const staticDir = Media.upload?.staticDir
 
   if (staticDir) {
-    // If staticDir is an absolute path, use it directly
+    // If staticDir is an absolute path, check if it exists first
     if (path.isAbsolute(staticDir)) {
-      return staticDir
+      // In development, prefer the development path even if config says /app/media
+      if (process.env.NODE_ENV !== 'production') {
+        const devPath = path.resolve(process.cwd(), 'media')
+        if (fs.existsSync(devPath)) {
+          return devPath
+        }
+      }
+      // If the configured path exists, use it
+      if (fs.existsSync(staticDir)) {
+        return staticDir
+      }
+    } else {
+      // If relative, resolve from process.cwd()
+      const resolvedPath = path.resolve(process.cwd(), staticDir)
+      if (fs.existsSync(resolvedPath)) {
+        return resolvedPath
+      }
     }
-    // If relative, resolve from process.cwd()
-    return path.resolve(process.cwd(), staticDir)
   }
 
-  // Fallback: Try multiple possible locations
+  // Fallback: Try multiple possible locations (check development first)
   const possiblePaths = [
-    path.resolve('/app', 'media'), // Production Docker/Coolify
-    path.resolve(process.cwd(), 'media'), // Development or if cwd is project root
+    path.resolve(process.cwd(), 'media'), // Development - project root
     path.resolve(process.cwd(), '..', 'media'), // If running from .next/standalone
     path.resolve(process.cwd(), '..', '..', 'media'), // If running from .next/standalone/src
+    path.resolve('/app', 'media'), // Production Docker/Coolify (check last)
   ]
 
-  // Return the first path that exists, or the first one as default
+  // Return the first path that exists
   for (const possiblePath of possiblePaths) {
     if (fs.existsSync(possiblePath)) {
       return possiblePath
     }
   }
 
-  // Default to /app/media for production
-  return path.resolve('/app', 'media')
+  // Default based on environment
+  if (process.env.NODE_ENV === 'production') {
+    return path.resolve('/app', 'media')
+  }
+  return path.resolve(process.cwd(), 'media')
 }
 
 export async function GET(
@@ -124,33 +141,71 @@ export async function GET(
     
     // Get media directory path
     const mediaDir = getMediaDirectory()
-    const filePath = path.join(mediaDir, actualFilename)
+    let filePath = path.join(mediaDir, actualFilename)
 
-    // Check if file exists
+    // Check if file exists - if not, try to find a matching file on disk
     if (!fs.existsSync(filePath)) {
-      console.error(`[Media API] File not found at: ${filePath}`)
-      console.error(`[Media API] Media directory: ${mediaDir}`)
-      console.error(`[Media API] Process cwd: ${process.cwd()}`)
+      // Try to find a file with similar base name (handle version number mismatches)
+      const ext = path.extname(actualFilename)
+      const nameWithoutExt = path.basename(actualFilename, ext)
+      const baseName = nameWithoutExt.replace(/-\d+$/, '') // Remove trailing version number
       
-      // Try to list files in media directory for debugging
+      // Find all files in media directory that match the base name
       if (fs.existsSync(mediaDir)) {
         try {
-          const files = fs.readdirSync(mediaDir)
-          console.error(`[Media API] Files in media directory (${files.length}):`, files.slice(0, 10))
+          const allFiles = fs.readdirSync(mediaDir)
+          const matchingFiles = allFiles.filter((file: string) => {
+            const fileExt = path.extname(file)
+            const fileNameWithoutExt = path.basename(file, fileExt)
+            const fileBaseName = fileNameWithoutExt.replace(/-\d+$/, '')
+            return fileBaseName === baseName && fileExt === ext
+          })
+          
+          if (matchingFiles.length > 0) {
+            // Sort by version number (highest first) and use the latest version
+            matchingFiles.sort((a: string, b: string) => {
+              const getVersion = (name: string) => {
+                const match = name.match(/-(\d+)\./)
+                return match ? parseInt(match[1], 10) : 0
+              }
+              return getVersion(b) - getVersion(a)
+            })
+            
+            filePath = path.join(mediaDir, matchingFiles[0])
+            console.log(`[Media API] Using fallback file: ${matchingFiles[0]} (requested: ${actualFilename})`)
+          }
         } catch (e) {
-          console.error(`[Media API] Could not read media directory:`, e)
+          console.error(`[Media API] Could not search media directory:`, e)
         }
       }
       
-      return NextResponse.json({ 
-        error: 'File not found on disk',
-        debug: {
-          mediaDir,
-          filePath,
-          cwd: process.cwd(),
-          filename: sanitizedFilename,
+      // If still not found, return 404
+      if (!fs.existsSync(filePath)) {
+        console.error(`[Media API] File not found at: ${filePath}`)
+        console.error(`[Media API] Media directory: ${mediaDir}`)
+        console.error(`[Media API] Process cwd: ${process.cwd()}`)
+        
+        // Try to list files in media directory for debugging
+        if (fs.existsSync(mediaDir)) {
+          try {
+            const files = fs.readdirSync(mediaDir)
+            console.error(`[Media API] Files in media directory (${files.length}):`, files.slice(0, 10))
+          } catch (e) {
+            console.error(`[Media API] Could not read media directory:`, e)
+          }
         }
-      }, { status: 404 })
+        
+        return NextResponse.json({ 
+          error: 'File not found on disk',
+          debug: {
+            mediaDir,
+            filePath,
+            cwd: process.cwd(),
+            filename: sanitizedFilename,
+            actualFilename,
+          }
+        }, { status: 404 })
+      }
     }
 
     // Read file

@@ -130,9 +130,12 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Use absolute path from project root, not relative to cwd
-    // This works even when server runs from .next/standalone
-    staticDir: path.resolve('/app', 'media'),
+    // Use environment-aware path
+    // Development: relative to project root
+    // Production: absolute path /app/media (Docker/Coolify)
+    staticDir: process.env.NODE_ENV === 'production' 
+      ? path.resolve('/app', 'media')
+      : path.resolve(process.cwd(), 'media'),
     staticURL: '/media',
     // Removed imageSizes and adminThumbnail to avoid database schema mismatch
     // These require database migrations that aren't available in production

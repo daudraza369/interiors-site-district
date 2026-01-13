@@ -70,3 +70,4 @@ All should show values (not empty).
 - ✅ Check database file exists: `ls -la /app/data/*.db`
 
 
+

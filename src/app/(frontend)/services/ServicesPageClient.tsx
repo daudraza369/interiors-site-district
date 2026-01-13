@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getMediaUrl } from '@/lib/mediaUrl'
+import { ServicesSection } from '@/components/sections/ServicesSection'
 
 interface Service {
   id: string | number
@@ -23,13 +24,12 @@ interface ServicesPageClientProps {
 
 export function ServicesPageClient({ servicesPage, services }: ServicesPageClientProps) {
   const heroRef = useScrollAnimation<HTMLElement>()
-  const servicesRef = useScrollAnimation<HTMLElement>()
 
   const heroSection = servicesPage?.heroSection
   const servicesSection = servicesPage?.servicesSection
   const ctaSection = servicesPage?.ctaSection
 
-  // Transform services to handle image URLs
+  // Transform services to match ServicesSection format
   const transformedServices = services.map((service: any) => {
     let imageUrl = ''
     let imageAlt = service.title
@@ -44,11 +44,12 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
     }
 
     return {
-      id: service.id,
+      id: String(service.id),
       title: service.title,
       description: service.description,
+      cta: 'Learn More',
+      href: service.link || '/services',
       image: imageUrl ? { url: imageUrl, alt: imageAlt } : undefined,
-      link: service.link || '/services',
     }
   })
 
@@ -107,45 +108,13 @@ export function ServicesPageClient({ servicesPage, services }: ServicesPageClien
         </section>
       )}
 
-      {/* Services Grid */}
+      {/* Services Grid - Using new ServicesSection component */}
       {servicesSection?.enabled !== false && (
-        <section ref={servicesRef.ref} className="section-padding bg-ivory">
-          <div className="container-luxury">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {transformedServices.map((service, index) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={servicesRef.isVisible ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="group"
-                >
-                  <Link href={service.link}>
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-sm mb-6">
-                      {service.image?.url && (
-                        <Image
-                          src={service.image.url}
-                          alt={service.image.alt || service.title}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-night-green/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    </div>
-                    <h3 className="text-night-green mb-3 group-hover:text-slate-moss transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-slate-moss/80 mb-4">{service.description}</p>
-                    <span className="inline-flex items-center text-sm uppercase tracking-wider text-night-green font-semibold group-hover:text-slate-moss transition-colors">
-                      Learn More
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ServicesSection
+          enabled={servicesSection?.enabled ?? true}
+          headline={servicesSection?.headline || 'Explore Our Services'}
+          services={transformedServices}
+        />
       )}
 
       {/* CTA Section */}

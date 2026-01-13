@@ -11,11 +11,14 @@ import { cn } from '@/lib/utils'
 import logoBrandmark from '@/assets/district-brandmark.png'
 import logoBrandmarkNightGreen from '@/assets/district-brandmark-night-green.png'
 import logoBrandmarkPear from '@/assets/district-brandmark-pear.png'
+import logoBrandmarkLavender from '@/assets/district-brandmark-lavender.png'
+import logoBrandmarkLavenderTransparent from '@/assets/district-brandmark-lavender-transparent.png'
+import logoBrandmarkIvory from '@/assets/district-brandmark-ivory.png'
 import logoLockup from '@/assets/district-logo-lockup.png'
 import logoLockupNightGreen from '@/assets/district-logo-lockup-night-green.png'
 
 // Pages that have dark hero sections where transparent header works well
-const HERO_PAGES = ['/', '/flowers', '/hospitality', '/projects', '/tree-solutions']
+const HERO_PAGES = ['/', '/flowers', '/hospitality', '/projects', '/tree-solutions', '/services', '/design', '/collection']
 
 const navItems = [
   { label: 'DISTRICT', href: '/' },
@@ -31,7 +34,7 @@ const navItems = [
       { label: 'GREEN WALLS', href: '/services/green-walls' },
     ],
   },
-  { label: 'STYLING', href: '/styling' },
+  { label: 'DESIGN', href: '/design' },
   { label: 'COLLECTION', href: '/collection' },
 ]
 
@@ -45,6 +48,9 @@ export function Header() {
   // Determine if current page has a dark hero that works with transparent header
   const hasHeroSection = HERO_PAGES.includes(pathname)
   const shouldUseTransparentHeader = hasHeroSection && !isScrolled
+  
+  // Flowers page uses ivory/lavender theme
+  const isFlowersPage = pathname === '/flowers'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,13 +95,17 @@ export function Header() {
         className={cn(
           'fixed top-0 left-0 right-0 z-[1000] transition-all duration-700 ease-out',
           isScrolled || !hasHeroSection
-            ? 'py-3 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border-b border-ivory/20'
+            ? isFlowersPage
+              ? 'py-3 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.08)] border-b border-mauve/10'
+              : 'py-3 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border-b border-ivory/20'
             : 'py-5 bg-transparent',
         )}
         style={{
           background:
             isScrolled || !hasHeroSection
-              ? 'linear-gradient(135deg, hsla(60, 3%, 78%, 0.75) 0%, hsla(60, 30%, 98%, 0.6) 50%, hsla(155, 22%, 16%, 0.2) 100%)'
+              ? isFlowersPage
+                ? 'linear-gradient(180deg, hsl(60 30% 96% / 0.85) 0%, hsl(60 30% 98% / 0.8) 100%)'
+                : 'linear-gradient(135deg, hsla(60, 3%, 78%, 0.75) 0%, hsla(60, 30%, 98%, 0.6) 50%, hsla(155, 22%, 16%, 0.2) 100%)'
               : 'transparent',
         }}
       >
@@ -103,7 +113,18 @@ export function Header() {
           <nav className="flex items-center justify-between">
             {/* Logo - Refined sizing for balance */}
             <Link href="/" className="relative z-[60] flex flex-col items-center group shrink-0 w-[44px] md:w-[48px] lg:w-[52px]">
-              {/* Transparent header: show pear brandmark */}
+              {/* Flowers page transparent: show ivory brandmark */}
+              <Image
+                src={logoBrandmarkIvory}
+                alt="District Flowers"
+                width={52}
+                height={44}
+                className={cn(
+                  'h-9 md:h-10 lg:h-11 w-auto transition-all duration-500',
+                  shouldUseTransparentHeader && !isScrolled && isFlowersPage ? 'opacity-100' : 'opacity-0 h-0 absolute',
+                )}
+              />
+              {/* Other pages transparent: show pear brandmark */}
               <Image
                 src={logoBrandmarkPear}
                 alt="District Interiors"
@@ -111,10 +132,21 @@ export function Header() {
                 height={44}
                 className={cn(
                   'h-9 md:h-10 lg:h-11 w-auto transition-all duration-500',
-                  shouldUseTransparentHeader && !isScrolled ? 'opacity-100' : 'opacity-0 h-0 absolute',
+                  shouldUseTransparentHeader && !isScrolled && !isFlowersPage ? 'opacity-100' : 'opacity-0 h-0 absolute',
                 )}
               />
-              {/* Scrolled/sticky header: show night-green brandmark */}
+              {/* Scrolled flowers page: show lavender transparent brandmark */}
+              <Image
+                src={logoBrandmarkLavenderTransparent}
+                alt="District Flowers"
+                width={52}
+                height={40}
+                className={cn(
+                  'h-8 md:h-9 lg:h-10 w-auto transition-all duration-500',
+                  (!shouldUseTransparentHeader || isScrolled) && isFlowersPage ? 'opacity-100' : 'opacity-0 h-0 absolute',
+                )}
+              />
+              {/* Scrolled other pages: show night-green brandmark */}
               <Image
                 src={logoBrandmarkNightGreen}
                 alt="District"
@@ -122,7 +154,7 @@ export function Header() {
                 height={40}
                 className={cn(
                   'h-8 md:h-9 lg:h-10 w-auto transition-all duration-500',
-                  !shouldUseTransparentHeader || isScrolled ? 'opacity-100' : 'opacity-0 h-0 absolute',
+                  (!shouldUseTransparentHeader || isScrolled) && !isFlowersPage ? 'opacity-100' : 'opacity-0 h-0 absolute',
                 )}
               />
             </Link>
@@ -140,13 +172,17 @@ export function Header() {
                     <button
                       onClick={() => handleNavClick(item)}
                       className={cn(
-                        'flex items-center gap-1 font-nav font-bold uppercase tracking-[0.1em] transition-all duration-300 relative whitespace-nowrap',
+                        'flex items-center gap-1 font-nav font-bold uppercase tracking-[0.2em] transition-all duration-300 relative whitespace-nowrap',
                         'text-[13px] xl:text-[14px] 2xl:text-[15px]',
                         'before:absolute before:-bottom-1 before:left-0 before:w-full before:h-[1.5px] before:origin-right before:scale-x-0 before:transition-transform before:duration-300',
                         shouldUseTransparentHeader
-                          ? 'text-ivory hover:text-pear before:bg-pear'
-                          : 'text-night-green hover:text-slate-moss before:bg-night-green',
-                        activeDropdown === item.label && (shouldUseTransparentHeader ? 'text-pear' : 'text-slate-moss'),
+                          ? isFlowersPage
+                            ? 'text-ivory hover:text-ivory/80 before:bg-ivory'
+                            : 'text-ivory hover:text-pear before:bg-pear'
+                          : isFlowersPage
+                            ? 'text-lavender hover:text-mauve before:bg-lavender'
+                            : 'text-night-green hover:text-slate-moss before:bg-night-green',
+                        activeDropdown === item.label && (shouldUseTransparentHeader ? (isFlowersPage ? 'text-ivory/80' : 'text-pear') : (isFlowersPage ? 'text-mauve' : 'text-slate-moss')),
                         'hover:before:scale-x-100 hover:before:origin-left',
                       )}
                       style={shouldUseTransparentHeader ? { textShadow: '0 2px 8px rgba(0,0,0,0.4)' } : undefined}
@@ -157,12 +193,16 @@ export function Header() {
                     <button
                       onClick={() => handleNavClick(item)}
                       className={cn(
-                        'flex items-center gap-1 font-nav font-bold uppercase tracking-[0.1em] transition-all duration-300 relative whitespace-nowrap',
+                        'flex items-center gap-1 font-nav font-bold uppercase tracking-[0.2em] transition-all duration-300 relative whitespace-nowrap',
                         'text-[13px] xl:text-[14px] 2xl:text-[15px]',
                         'before:absolute before:-bottom-1 before:left-0 before:w-full before:h-[1.5px] before:origin-right before:scale-x-0 before:transition-transform before:duration-300',
                         shouldUseTransparentHeader
-                          ? 'text-ivory hover:text-pear before:bg-pear'
-                          : 'text-night-green hover:text-slate-moss before:bg-night-green',
+                          ? isFlowersPage
+                            ? 'text-ivory hover:text-ivory/80 before:bg-ivory'
+                            : 'text-ivory hover:text-pear before:bg-pear'
+                          : isFlowersPage
+                            ? 'text-lavender hover:text-mauve before:bg-lavender'
+                            : 'text-night-green hover:text-slate-moss before:bg-night-green',
                         'hover:before:scale-x-100 hover:before:origin-left',
                       )}
                       style={shouldUseTransparentHeader ? { textShadow: '0 2px 8px rgba(0,0,0,0.4)' } : undefined}
@@ -172,65 +212,128 @@ export function Header() {
                   )}
 
                   {/* Dropdown */}
-                  {item.children && activeDropdown === item.label && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 animate-fade-in z-[1500]">
-                      {/* Elegant gradient connector */}
-                      <div className="absolute top-1 left-1/2 -translate-x-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent via-pear/60 to-transparent" />
-                      <div
-                        className="relative rounded-sm overflow-hidden min-w-[240px]"
-                        style={{
-                          background: 'linear-gradient(180deg, hsl(155 22% 16%) 0%, hsl(155 22% 20%) 100%)',
-                          boxShadow:
-                            '0 25px 60px rgba(0,0,0,0.3), 0 10px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
-                        }}
+                  <AnimatePresence>
+                    {item.children && activeDropdown === item.label && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-[1500]"
                       >
-                        {/* Decorative top accent line */}
-                        <div className="h-[2px] bg-gradient-to-r from-transparent via-pear to-transparent" />
+                        {/* Elegant gradient connector */}
+                        <motion.div
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.3, delay: 0.1 }}
+                          className={cn(
+                            'absolute top-1 left-1/2 -translate-x-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent to-transparent',
+                            isFlowersPage ? 'via-lavender/60' : 'via-pear/60'
+                          )}
+                        />
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                          className="relative rounded-lg overflow-hidden min-w-[240px]"
+                          style={{
+                            background: isFlowersPage
+                              ? 'linear-gradient(180deg, hsl(270 33% 72%) 0%, hsl(270 33% 68%) 100%)'
+                              : 'linear-gradient(180deg, hsl(155 22% 16%) 0%, hsl(155 22% 20%) 100%)',
+                            boxShadow: isFlowersPage
+                              ? '0 25px 60px rgba(139,115,168,0.35), 0 10px 25px rgba(139,115,168,0.25), inset 0 1px 0 rgba(255,255,255,0.15)'
+                              : '0 25px 60px rgba(0,0,0,0.3), 0 10px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+                          }}
+                        >
+                          {/* Decorative top accent line */}
+                          <motion.div
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 0.4, delay: 0.15 }}
+                            className={cn(
+                              'h-[2px] bg-gradient-to-r from-transparent to-transparent origin-center',
+                              isFlowersPage ? 'via-ivory' : 'via-pear'
+                            )}
+                          />
 
-                        <div className="py-3">
-                          {item.children.map((child, index) => (
-                            <button
-                              key={child.label}
-                              onClick={(e) => handleDropdownItemClick(e, child.href)}
-                              className="group relative block w-full text-center px-6 py-3.5 text-sm font-nav font-bold uppercase tracking-wider text-ivory/80 hover:text-pear transition-all duration-300"
-                              style={{ animationDelay: `${index * 40}ms` }}
-                            >
-                              {/* Hover background effect */}
-                              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-pear/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                              {/* Left accent bar on hover */}
-                              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-pear group-hover:h-6 transition-all duration-300 rounded-r-full" />
-                              <span className="relative">{child.label}</span>
-                            </button>
-                          ))}
-                        </div>
+                          <div className="py-3">
+                            {item.children.map((child, index) => (
+                              <motion.button
+                                key={child.label}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
+                                onClick={(e) => handleDropdownItemClick(e, child.href)}
+                                className={cn(
+                                  'group relative block w-full text-center px-6 py-3.5 text-sm font-nav font-bold uppercase tracking-wider transition-all duration-300',
+                                  isFlowersPage
+                                    ? 'text-ivory/90 hover:text-ivory'
+                                    : 'text-ivory/80 hover:text-pear'
+                                )}
+                              >
+                                {/* Hover background effect */}
+                                <span
+                                  className={cn(
+                                    'absolute inset-0 bg-gradient-to-r from-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+                                    isFlowersPage ? 'via-ivory/15' : 'via-pear/10'
+                                  )}
+                                />
+                                {/* Left accent bar on hover */}
+                                <span
+                                  className={cn(
+                                    'absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 group-hover:h-6 transition-all duration-300 rounded-r-full',
+                                    isFlowersPage ? 'bg-ivory' : 'bg-pear'
+                                  )}
+                                />
+                                {/* Right accent bar on hover (flowers page only) */}
+                                {isFlowersPage && (
+                                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-0 bg-ivory group-hover:h-6 transition-all duration-300 rounded-l-full delay-75" />
+                                )}
+                                <span className="relative">{child.label}</span>
+                              </motion.button>
+                            ))}
+                          </div>
 
-                        {/* Decorative bottom accent line */}
-                        <div className="h-[2px] bg-gradient-to-r from-transparent via-slate-moss/50 to-transparent" />
-                      </div>
-                    </div>
-                  )}
+                          {/* Decorative bottom accent line */}
+                          <motion.div
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                            className={cn(
+                              'h-[2px] bg-gradient-to-r from-transparent to-transparent origin-center',
+                              isFlowersPage ? 'via-mauve/60' : 'via-slate-moss/50'
+                            )}
+                          />
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
 
             {/* CTA Button - Fixed width for balance */}
-            <div className="hidden lg:flex items-center justify-end w-[200px] xl:w-[220px]">
+            <div className="hidden lg:flex items-center justify-end w-[240px] xl:w-[260px]">
               <Button
                 onClick={() => {
                   setIsMobileMenuOpen(false)
-                  router.push('/projects')
+                  router.push(isFlowersPage ? '/flowers#catalog' : '/projects')
                 }}
                 className={cn(
-                  'font-heading text-[11px] xl:text-xs tracking-wider uppercase transition-all duration-500 px-4 xl:px-5',
-                  'shadow-[0_4px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.25)]',
-                  'hover:-translate-y-0.5',
+                  'font-heading text-[11px] xl:text-xs tracking-[0.15em] uppercase px-4 xl:px-5',
+                  'transition-all duration-300 ease-out',
+                  'hover:-translate-y-0.5 hover:scale-[1.02]',
                   shouldUseTransparentHeader
-                    ? 'bg-pear/90 text-night-green hover:bg-pear border border-pear/50'
-                    : 'bg-night-green text-ivory hover:bg-pear hover:text-night-green',
+                    ? isFlowersPage
+                      ? 'bg-ivory/90 text-lavender hover:bg-lavender hover:text-ivory border border-ivory/50 hover:border-lavender shadow-[0_4px_20px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_30px_rgba(139,115,168,0.4)]'
+                      : 'bg-pear/90 text-night-green hover:bg-pear border border-pear/50 shadow-[0_4px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.25)]'
+                    : isFlowersPage
+                      ? 'bg-lavender text-ivory hover:bg-ivory hover:text-lavender border border-lavender/30 hover:border-ivory shadow-[0_4px_20px_rgba(139,115,168,0.3)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.25)]'
+                      : 'bg-night-green text-ivory hover:bg-pear hover:text-night-green shadow-[0_4px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.25)]',
                 )}
                 size="sm"
               >
-                VIEW OUR PORTFOLIO
+                {isFlowersPage ? 'BUY FLOWERS IN BULK' : 'PORTFOLIO'}
               </Button>
             </div>
 
@@ -240,7 +343,11 @@ export function Header() {
                 <Menu
                   className={cn(
                     'w-6 h-6 transition-colors duration-300',
-                    shouldUseTransparentHeader ? 'text-ivory' : 'text-night-green',
+                    shouldUseTransparentHeader 
+                      ? 'text-ivory' 
+                      : isFlowersPage 
+                        ? 'text-lavender' 
+                        : 'text-night-green',
                   )}
                 />
               </button>
