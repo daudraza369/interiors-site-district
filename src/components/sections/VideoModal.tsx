@@ -21,6 +21,7 @@ interface VideoModalProps {
 }
 
 export function VideoModal({ project, onClose }: VideoModalProps) {
+  // Handle escape key
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -43,80 +44,69 @@ export function VideoModal({ project, onClose }: VideoModalProps) {
     return null
   }
 
-  // Use getMediaUrl utility for consistent URL handling
-  const getImageUrl = (image: string | null | { url?: string; filename?: string }): string => {
-    if (!image) return ''
-    if (typeof image === 'string') {
-      return getMediaUrl(image)
-    }
-    // If it's a Payload media object
-    if (image.url) {
-      return getMediaUrl(image.url)
-    }
-    if (image.filename) {
-      return getMediaUrl(`/media/${image.filename}`)
-    }
-    return ''
-  }
+  // Get poster image URL
+  const posterUrl = project.heroImage ? getMediaUrl(project.heroImage) : undefined
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="video-modal-title"
-      >
-        {/* Backdrop */}
-        <div className="absolute inset-0 bg-night-green/90 backdrop-blur-sm" />
-
-        {/* Modal Content */}
+      {project && project.videoUrl && (
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="relative max-w-[95vw] max-h-[95vh] bg-night-green rounded-xl overflow-hidden shadow-2xl flex flex-col"
-          onClick={(e) => e.stopPropagation()}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="video-modal-title"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 bg-gradient-to-b from-night-green to-night-green/80">
-            <div>
-              <h3 id="video-modal-title" className="text-lg font-semibold text-ivory">
-                {project.title}
-              </h3>
-              {project.location && (
-                <p className="text-pear/80 text-sm">{project.location}</p>
-              )}
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full bg-ivory/10 hover:bg-ivory/20 transition-colors"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5 text-ivory" />
-            </button>
-          </div>
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-md" />
 
-          {/* Video */}
-          <video
-            src={project.videoUrl}
-            className="max-w-[90vw] max-h-[80vh] object-contain"
-            controls
-            autoPlay
-            playsInline
-            poster={getImageUrl(project.heroImage) || undefined}
-          />
+          {/* Close button - positioned outside content */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            aria-label="Close modal"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          {/* Modal Content - centered video */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="relative w-[90vw] max-w-[1400px] bg-black rounded-lg overflow-hidden shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header with title */}
+            <div className="flex items-center justify-between p-4 bg-gradient-to-b from-night-green to-night-green/80">
+              <div>
+                <h3 id="video-modal-title" className="text-lg font-semibold text-ivory">
+                  {project.title}
+                </h3>
+                <p className="text-pear/80 text-sm">{project.location}</p>
+              </div>
+            </div>
+
+            {/* Video with full controls */}
+            <div className="relative w-full" style={{ height: '75vh' }}>
+              <video
+                src={project.videoUrl}
+                className="w-full h-full object-contain bg-black"
+                controls
+                autoPlay
+                playsInline
+                controlsList="nodownload"
+                poster={posterUrl}
+              />
+            </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </AnimatePresence>
   )
 }
-
-
-

@@ -44,15 +44,30 @@ async function getProjectsPageData() {
     ])
 
     // Transform projects to match component interface
-    const transformedProjects = projects.docs.map((project: any) => ({
-      id: project.id.toString(),
-      title: project.title || '',
-      projectType: project.projectType || null,
-      location: project.location || null,
-      description: project.description || null,
-      heroImage: project.heroImage || null,
-      videoUrl: project.videoUrl || null,
-    }))
+    // With depth: 2, heroImage should be populated as a Media object
+    const { getMediaUrl } = await import('@/lib/mediaUrl')
+    const transformedProjects = projects.docs.map((project: any) => {
+      // Handle heroImage - it might be a Media object or just an ID
+      let heroImageUrl: string | null = null
+      if (project.heroImage) {
+        if (typeof project.heroImage === 'object' && project.heroImage.url) {
+          // Use getMediaUrl to normalize the URL
+          heroImageUrl = getMediaUrl(project.heroImage.url)
+        } else if (typeof project.heroImage === 'string') {
+          heroImageUrl = getMediaUrl(project.heroImage)
+        }
+      }
+
+      return {
+        id: project.id.toString(),
+        title: project.title || '',
+        projectType: project.projectType || null,
+        location: project.location || null,
+        description: project.description || null,
+        heroImage: heroImageUrl,
+        videoUrl: project.videoUrl || null,
+      }
+    })
 
     // Transform showrooms to match component interface
     const transformedShowrooms = showrooms.docs.map((showroom: VirtualShowroom) =>
