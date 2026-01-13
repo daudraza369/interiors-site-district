@@ -67,17 +67,16 @@ export const Projects: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       admin: {
-        description: 'Upload a video file (MP4, WebM, etc.) - Alternative to Video URL below',
-        condition: (data) => !data.videoUrl, // Hide if videoUrl is set
+        description: 'Upload a video file (MP4, WebM, MOV, etc.) - OR use Video URL below for external links',
       },
     },
     {
       name: 'videoUrl',
-      label: 'Video URL',
+      label: 'Video URL (External)',
       type: 'text',
       admin: {
-        description: 'External video URL (YouTube, Vimeo, direct link, etc.) - Alternative to Video File above',
-        condition: (data) => !data.video, // Hide if video is uploaded
+        description: 'External video URL (YouTube, Vimeo, direct video link, etc.) - OR upload Video File above',
+        placeholder: 'https://example.com/video.mp4 or https://youtube.com/watch?v=...',
       },
     },
     {
