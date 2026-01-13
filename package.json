@@ -24,6 +24,7 @@
     "verify:client-logos": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/verify-client-logos.ts",
     "verify:portfolio-images": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/verify-portfolio-images.ts",
     "fix:portfolio-images": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/fix-portfolio-images-coolify.ts",
+    "seed:portfolio-complete": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-portfolio-complete.ts",
     "seed:client-logos": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-client-logos.ts",
     "seed:expert-quotes": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-expert-quotes.ts",
     "seed:our-approach": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/seed-our-approach.ts",
