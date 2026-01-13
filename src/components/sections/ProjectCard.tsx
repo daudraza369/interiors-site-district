@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { Play } from 'lucide-react'
-import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { getMediaUrl } from '@/lib/mediaUrl'
 
@@ -146,21 +145,23 @@ export function ProjectCard({
           {hasVideo ? (
             <video
               ref={videoRef}
-              src={project.videoUrl}
-              className="w-full h-full object-cover"
+              src={project.videoUrl || undefined}
+              className="w-full h-full object-cover pointer-events-none"
               muted
               loop
               playsInline
+              controlsList="nodownload"
               poster={imageUrl || undefined}
             />
           ) : (
-            imageUrl && (
-              <Image
+            imageUrl ? (
+              <img
                 src={imageUrl}
                 alt={project.title}
-                fill
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
+            ) : (
+              <div className="w-full h-full bg-slate-moss/20" />
             )
           )}
         </motion.div>

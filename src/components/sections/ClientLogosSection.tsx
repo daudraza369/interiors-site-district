@@ -61,12 +61,17 @@ export function ClientLogosSection({
   const repeatedLogos = [...displayLogos, ...displayLogos, ...displayLogos, ...displayLogos]
 
   const LogoItem = ({ client, index }: { client: ClientLogo; index: number }) => {
-    const logoUrl = typeof client.logo === 'string' 
-      ? client.logo 
-      : client.logo?.url || ''
-    const logoAlt = typeof client.logo === 'object' 
-      ? client.logo?.alt || client.clientName 
-      : client.clientName
+    let logoUrl = ''
+    let logoAlt = client.clientName
+    
+    if (client.logo) {
+      if (typeof client.logo === 'string') {
+        logoUrl = client.logo
+      } else if (typeof client.logo === 'object' && client.logo.url) {
+        logoUrl = client.logo.url
+        logoAlt = client.logo.alt || client.clientName
+      }
+    }
 
     return (
       <div className="flex-shrink-0 mx-10 md:mx-14 lg:mx-20 flex items-center justify-center group h-12 md:h-14">
@@ -81,14 +86,16 @@ export function ClientLogosSection({
               <img 
                 src={logoUrl} 
                 alt={logoAlt}
-                className="h-10 md:h-12 w-auto max-w-[160px] md:max-w-[200px] object-contain opacity-50 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500 ease-out"
+                className="h-10 md:h-12 w-auto max-w-[160px] md:max-w-[200px] object-contain brightness-0 opacity-50 group-hover:brightness-100 group-hover:opacity-100 transition-all duration-500 ease-out"
+                loading="lazy"
               />
             </a>
           ) : (
             <img 
               src={logoUrl} 
               alt={logoAlt}
-              className="h-10 md:h-12 w-auto max-w-[160px] md:max-w-[200px] object-contain opacity-50 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500 ease-out"
+              className="h-10 md:h-12 w-auto max-w-[160px] md:max-w-[200px] object-contain brightness-0 opacity-50 group-hover:brightness-100 group-hover:opacity-100 transition-all duration-500 ease-out"
+              loading="lazy"
             />
           )
         ) : (
