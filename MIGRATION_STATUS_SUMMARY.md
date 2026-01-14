@@ -237,3 +237,4 @@ Get-ChildItem -Path media -File | Where-Object { $_.Name -like "*amazon*" }
 - Remaining work is primarily page structure updates and CMS integration
 - The new repo uses hardcoded data, but we're making it CMS-driven for better content management
 
+

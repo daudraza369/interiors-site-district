@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { ProjectCard } from './ProjectCard'
@@ -61,10 +61,14 @@ export function ProjectsGallerySection({
   return (
     <>
       {/* Video Modal */}
-      <VideoModal
-        project={activeVideoProject}
-        onClose={() => setActiveVideoProject(null)}
-      />
+      <AnimatePresence>
+        {activeVideoProject && activeVideoProject.videoUrl && (
+          <VideoModal
+            project={activeVideoProject}
+            onClose={() => setActiveVideoProject(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <section ref={ref} className="section-padding bg-ivory" id="gallery">
         <div className="container-luxury">

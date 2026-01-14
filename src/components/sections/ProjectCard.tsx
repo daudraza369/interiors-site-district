@@ -78,8 +78,6 @@ export function ProjectCard({
   const layoutClass = layoutVariants[index % layoutVariants.length]
   const isTall = layoutClass.includes('row-span-2')
   const hasVideo = !!project.videoUrl
-  
-  // Use video URL if available, otherwise use hero image, with fallback
   const mediaSource = project.videoUrl || (project.heroImage ? getMediaUrl(project.heroImage) : null) || heroImage
 
   return (

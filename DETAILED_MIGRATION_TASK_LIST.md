@@ -261,3 +261,4 @@ Before deploying to Coolify, verify:
 
 **DO NOT PROCEED** until you've reviewed this entire document and understand the scope.
 
+
