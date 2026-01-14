@@ -20,12 +20,15 @@ interface VideoModalProps {
   onClose: () => void
 }
 
-// Helper function to detect and convert YouTube/Vimeo URLs to embed format
+// Helper function to detect and convert YouTube/Vimeo/Google Drive URLs to embed format
 function getVideoEmbedUrl(url: string): { isEmbed: boolean; embedUrl: string } {
   // YouTube URL patterns
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
   // Vimeo URL patterns
   const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
+  // Google Drive URL patterns
+  // Format: https://drive.google.com/file/d/FILE_ID/view or https://drive.google.com/open?id=FILE_ID
+  const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=))([a-zA-Z0-9_-]+)/
   
   // Check if it's a YouTube URL
   const youtubeMatch = url.match(youtubeRegex)
@@ -44,6 +47,17 @@ function getVideoEmbedUrl(url: string): { isEmbed: boolean; embedUrl: string } {
     return {
       isEmbed: true,
       embedUrl: `https://player.vimeo.com/video/${videoId}?autoplay=1`,
+    }
+  }
+  
+  // Check if it's a Google Drive URL
+  const driveMatch = url.match(driveRegex)
+  if (driveMatch) {
+    const fileId = driveMatch[1]
+    // Convert to Google Drive embed format
+    return {
+      isEmbed: true,
+      embedUrl: `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`,
     }
   }
   
