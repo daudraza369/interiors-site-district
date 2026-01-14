@@ -4,7 +4,6 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs'
 import dotenv from 'dotenv'
-import Database from 'better-sqlite3'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -23,19 +22,18 @@ async function addVideoColumn() {
   console.log('🔧 Adding video_id column to projects table...\n')
 
   try {
-    // Get database path
-    const dbPath = process.env.DATABASE_URL?.replace('file:', '') || 
-                   path.join(rootDir, 'district-interiors.db')
-    
-    if (!fs.existsSync(dbPath)) {
-      console.error(`❌ Database file not found: ${dbPath}`)
+    // Use Payload's database connection
+    const { getPayload } = await import('payload')
+    const config = await import('@payload-config')
+    const payload = await getPayload({ config: config.default })
+
+    // Get the database adapter
+    const db = (payload.db as any).db
+
+    if (!db) {
+      console.error('❌ Could not access database connection')
       process.exit(1)
     }
-
-    console.log(`📂 Database path: ${dbPath}`)
-
-    // Open database
-    const db = new Database(dbPath)
 
     // Check if column already exists
     const tableInfo = db.prepare("PRAGMA table_info(projects)").all() as Array<{ name: string }>
@@ -43,7 +41,6 @@ async function addVideoColumn() {
 
     if (hasVideoId) {
       console.log('✅ video_id column already exists!')
-      db.close()
       process.exit(0)
     }
 
@@ -64,15 +61,14 @@ async function addVideoColumn() {
       console.log('✅ Verified: video_id column exists')
     } else {
       console.error('❌ Error: video_id column was not added')
-      db.close()
       process.exit(1)
     }
 
-    db.close()
-    console.log('\n✨ Done! You can now re-enable the video upload field.')
+    console.log('\n✨ Done! The video upload field is now enabled.')
     process.exit(0)
   } catch (error: any) {
     console.error('\n❌ Error:', error.message)
+    console.error('\n💡 Alternative: Restart the server - Payload will auto-migrate when the video field is enabled.')
     process.exit(1)
   }
 }
