@@ -30,6 +30,7 @@ async function getProjectsPageData() {
           },
         },
         sort: 'displayOrder',
+        limit: 100,
         depth: 2,
       }),
       payload.find({
@@ -40,6 +41,7 @@ async function getProjectsPageData() {
           },
         },
         sort: 'displayOrder',
+        limit: 100,
         depth: 2,
       }),
     ])
@@ -55,9 +57,6 @@ async function getProjectsPageData() {
           heroImageUrl = getMediaUrl(project.heroImage.url)
         } else if (typeof project.heroImage === 'string') {
           heroImageUrl = getMediaUrl(project.heroImage)
-        } else if (typeof project.heroImage === 'number') {
-          // If it's just an ID, we need to fetch it - but for now, skip
-          console.warn('[Projects Page] heroImage is just an ID, not populated:', project.heroImage)
         }
       }
 
@@ -68,24 +67,13 @@ async function getProjectsPageData() {
         if (typeof project.video === 'object' && project.video.url) {
           // Use getMediaUrl to normalize uploaded video URLs
           videoUrl = getMediaUrl(project.video.url)
-          console.log('[Projects Page] Found uploaded video:', {
-            title: project.title,
-            videoUrl: videoUrl,
-            filename: project.video.filename,
-          })
         } else if (typeof project.video === 'string') {
           videoUrl = getMediaUrl(project.video)
-        } else if (typeof project.video === 'number') {
-          console.warn('[Projects Page] video is just an ID, not populated:', project.video)
         }
       } else if (project.videoUrl) {
         // Video is external URL (YouTube, Vimeo, direct link, etc.)
         // Keep external URLs as-is (don't normalize them)
         videoUrl = project.videoUrl.trim()
-        console.log('[Projects Page] Found external video URL:', {
-          title: project.title,
-          videoUrl: videoUrl,
-        })
       }
 
       return {
