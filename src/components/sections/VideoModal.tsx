@@ -20,6 +20,40 @@ interface VideoModalProps {
   onClose: () => void
 }
 
+// Helper function to detect and convert YouTube/Vimeo URLs to embed format
+function getVideoEmbedUrl(url: string): { isEmbed: boolean; embedUrl: string } {
+  // YouTube URL patterns
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+  // Vimeo URL patterns
+  const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
+  
+  // Check if it's a YouTube URL
+  const youtubeMatch = url.match(youtubeRegex)
+  if (youtubeMatch) {
+    const videoId = youtubeMatch[1]
+    return {
+      isEmbed: true,
+      embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`,
+    }
+  }
+  
+  // Check if it's a Vimeo URL
+  const vimeoMatch = url.match(vimeoRegex)
+  if (vimeoMatch) {
+    const videoId = vimeoMatch[1]
+    return {
+      isEmbed: true,
+      embedUrl: `https://player.vimeo.com/video/${videoId}?autoplay=1`,
+    }
+  }
+  
+  // Not an embed URL, return as-is for direct video files
+  return {
+    isEmbed: false,
+    embedUrl: url,
+  }
+}
+
 export function VideoModal({ project, onClose }: VideoModalProps) {
   // Handle escape key
   const handleEscape = useCallback(
@@ -46,6 +80,10 @@ export function VideoModal({ project, onClose }: VideoModalProps) {
 
   // Get poster image URL
   const posterUrl = project.heroImage ? getMediaUrl(project.heroImage) : undefined
+  
+  // Check if video URL is YouTube/Vimeo or direct video file
+  const videoInfo = getVideoEmbedUrl(project.videoUrl)
+  const isEmbed = videoInfo.isEmbed
 
   return (
     <AnimatePresence>
@@ -94,15 +132,28 @@ export function VideoModal({ project, onClose }: VideoModalProps) {
 
             {/* Video with full controls */}
             <div className="relative w-full" style={{ height: '75vh' }}>
-              <video
-                src={project.videoUrl}
-                className="w-full h-full object-contain bg-black"
-                controls
-                autoPlay
-                playsInline
-                controlsList="nodownload"
-                poster={posterUrl}
-              />
+              {isEmbed ? (
+                // YouTube/Vimeo embed
+                <iframe
+                  src={videoInfo.embedUrl}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  frameBorder="0"
+                  title={`${project.title} video`}
+                />
+              ) : (
+                // Direct video file
+                <video
+                  src={videoInfo.embedUrl}
+                  className="w-full h-full object-contain bg-black"
+                  controls
+                  autoPlay
+                  playsInline
+                  controlsList="nodownload"
+                  poster={posterUrl}
+                />
+              )}
             </div>
           </motion.div>
         </motion.div>
