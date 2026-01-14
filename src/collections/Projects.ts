@@ -64,15 +64,17 @@ export const Projects: CollectionConfig = {
         description: 'Main image displayed in the project card',
       },
     },
-    {
-      name: 'video',
-      label: 'Video File',
-      type: 'upload',
-      relationTo: 'media',
-      admin: {
-        description: 'Upload a video file (MP4, WebM, MOV, etc.) - OR use Video URL below for external links',
-      },
-    },
+    // Temporarily disabled to avoid database schema issues
+    // Will be re-enabled after database migration
+    // {
+    //   name: 'video',
+    //   label: 'Video File',
+    //   type: 'upload',
+    //   relationTo: 'media',
+    //   admin: {
+    //     description: 'Upload a video file (MP4, WebM, MOV, etc.) - OR use Video URL below for external links',
+    //   },
+    // },
     {
       name: 'videoUrl',
       label: 'Video URL (External)',
