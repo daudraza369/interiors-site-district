@@ -140,11 +140,29 @@ async function seedProjectsComplete() {
   try {
     const payload = await getPayload({ config: config.default })
 
-    // Check existing projects
-    const existingProjects = await payload.find({
-      collection: 'projects',
-      limit: 100,
-    })
+    // Check existing projects - use minimal fields to avoid schema issues
+    let existingProjects
+    try {
+      existingProjects = await payload.find({
+        collection: 'projects',
+        limit: 100,
+        depth: 0, // Don't populate relations to avoid schema issues
+      })
+    } catch (error: any) {
+      // If query fails due to schema mismatch, try with minimal query
+      console.log('⚠️  Initial query failed, trying alternative approach...')
+      try {
+        // Try to get count first
+        const countResult = await payload.count({
+          collection: 'projects',
+        })
+        console.log(`📊 Found ${countResult.totalDocs} project(s) in database`)
+        existingProjects = { docs: [] } // Start fresh if schema is mismatched
+      } catch (e: any) {
+        console.error('❌ Could not query projects collection:', e.message)
+        existingProjects = { docs: [] }
+      }
+    }
 
     console.log(`📊 Found ${existingProjects.docs.length} existing project(s)\n`)
 
@@ -323,11 +341,27 @@ async function seedProjectsComplete() {
 
     // Final verification
     console.log('\n🔍 Final verification:\n')
-    const finalProjects = await payload.find({
-      collection: 'projects',
-      limit: 100,
-      depth: 2,
-    })
+    let finalProjects
+    try {
+      finalProjects = await payload.find({
+        collection: 'projects',
+        limit: 100,
+        depth: 2,
+      })
+    } catch (error: any) {
+      // If depth: 2 fails, try depth: 0
+      console.log('⚠️  Verification with depth: 2 failed, trying depth: 0...')
+      try {
+        finalProjects = await payload.find({
+          collection: 'projects',
+          limit: 100,
+          depth: 0,
+        })
+      } catch (e: any) {
+        console.error('❌ Could not verify projects:', e.message)
+        finalProjects = { docs: [] }
+      }
+    }
 
     console.log(`📊 Total projects: ${finalProjects.docs.length}\n`)
 
