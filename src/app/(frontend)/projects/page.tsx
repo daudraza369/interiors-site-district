@@ -55,6 +55,9 @@ async function getProjectsPageData() {
           heroImageUrl = getMediaUrl(project.heroImage.url)
         } else if (typeof project.heroImage === 'string') {
           heroImageUrl = getMediaUrl(project.heroImage)
+        } else if (typeof project.heroImage === 'number') {
+          // If it's just an ID, we need to fetch it - but for now, skip
+          console.warn('[Projects Page] heroImage is just an ID, not populated:', project.heroImage)
         }
       }
 
@@ -65,13 +68,24 @@ async function getProjectsPageData() {
         if (typeof project.video === 'object' && project.video.url) {
           // Use getMediaUrl to normalize uploaded video URLs
           videoUrl = getMediaUrl(project.video.url)
+          console.log('[Projects Page] Found uploaded video:', {
+            title: project.title,
+            videoUrl: videoUrl,
+            filename: project.video.filename,
+          })
         } else if (typeof project.video === 'string') {
           videoUrl = getMediaUrl(project.video)
+        } else if (typeof project.video === 'number') {
+          console.warn('[Projects Page] video is just an ID, not populated:', project.video)
         }
       } else if (project.videoUrl) {
         // Video is external URL (YouTube, Vimeo, direct link, etc.)
         // Keep external URLs as-is (don't normalize them)
         videoUrl = project.videoUrl.trim()
+        console.log('[Projects Page] Found external video URL:', {
+          title: project.title,
+          videoUrl: videoUrl,
+        })
       }
 
       return {
@@ -110,7 +124,21 @@ export default async function ProjectsPage() {
     projectsPageData = result.projectsPage
     projectsData = result.projects || []
     showroomsData = result.showrooms || []
+    
+    // Debug logging
+    console.log('[Projects Page] Projects found:', projectsData.length)
+    console.log('[Projects Page] Showrooms found:', showroomsData.length)
+    if (projectsData.length > 0) {
+      console.log('[Projects Page] First project:', {
+        id: projectsData[0].id,
+        title: projectsData[0].title,
+        hasVideo: !!projectsData[0].videoUrl,
+        videoUrl: projectsData[0].videoUrl,
+        hasImage: !!projectsData[0].heroImage,
+      })
+    }
   } catch (error: any) {
+    console.error('[Projects Page] Error fetching data:', error)
     // If everything fails, use default empty structure
     projectsPageData = {
       heroSection: {
@@ -184,7 +212,7 @@ export default async function ProjectsPage() {
         {projectsPage.virtualShowroomSection?.enabled !== false && (
           <VirtualShowroomSection
             enabled={projectsPage.virtualShowroomSection?.enabled ?? true}
-            showrooms={showroomsData}
+            showrooms={showroomsData || []}
           />
         )}
       </main>
