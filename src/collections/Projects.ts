@@ -64,17 +64,15 @@ export const Projects: CollectionConfig = {
         description: 'Main image displayed in the project card',
       },
     },
-    // Temporarily disabled - will be re-enabled after database migration
-    // To enable: Uncomment this field and restart server to auto-migrate database
-    // {
-    //   name: 'video',
-    //   label: 'Video File',
-    //   type: 'upload',
-    //   relationTo: 'media',
-    //   admin: {
-    //     description: 'Upload a video file (MP4, WebM, MOV, etc.) - OR use Video URL below for external links (YouTube, Vimeo, Google Drive, etc.)',
-    //   },
-    // },
+    {
+      name: 'video',
+      label: 'Video File',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Upload a video file (MP4, WebM, MOV, etc.) - OR use Video URL below for external links (YouTube, Vimeo, Google Drive, etc.)',
+      },
+    },
     {
       name: 'videoUrl',
       label: 'Video URL (External)',
